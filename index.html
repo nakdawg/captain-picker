@@ -5,170 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Captain of the Day</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --navy: #0d1b2a;
-    --navy-mid: #1a2e42;
-    --navy-light: #243b55;
-    --gold: #e8b94a;
-    --gold-light: #f5d47a;
-    --gold-dim: #a07e2e;
-    --white: #f4f1eb;
-    --muted: #8a9bb0;
-    --danger: #d9534f;
-    --success: #3aaa6e;
-    --radius: 12px;
+    --navy: #0d1b2a; --navy-mid: #1a2e42; --navy-light: #243b55;
+    --gold: #e8b94a; --gold-light: #f5d47a; --gold-dim: #a07e2e;
+    --white: #f4f1eb; --muted: #8a9bb0;
+    --danger: #d9534f; --success: #3aaa6e; --radius: 12px;
   }
+  body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem 5rem; }
 
-  body {
-    background: var(--navy);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem 4rem;
+  /* ── setup screen ── */
+  #setupScreen {
+    background: var(--navy-light); border: 1px solid var(--gold-dim);
+    border-radius: var(--radius); padding: 2.5rem; width: 100%; max-width: 480px;
+    margin-top: 1rem;
   }
+  #setupScreen h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+  #setupScreen p { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.4rem; line-height: 1.6; }
+  #setupScreen .field-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.35rem; margin-top: 1rem; }
+  #setupScreen a { color: var(--gold-dim); }
+  #setupScreen a:hover { color: var(--gold); }
+  .setup-note { background: rgba(232,185,74,0.08); border: 0.5px solid var(--gold-dim); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.78rem; color: var(--gold-dim); line-height: 1.6; margin-top: 1.2rem; }
 
-  #pwOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(13,27,42,0.92);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-  }
+  /* ── loading ── */
+  #loadingScreen { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 3rem; color: var(--muted); font-size: 0.85rem; }
+  .spinner { width: 32px; height: 32px; border: 2px solid rgba(232,185,74,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── password overlay ── */
+  #pwOverlay { display: none; position: fixed; inset: 0; background: rgba(13,27,42,0.92); z-index: 100; align-items: center; justify-content: center; }
   #pwOverlay.open { display: flex; }
-
-  .pw-box {
-    background: var(--navy-light);
-    border: 1px solid var(--gold-dim);
-    border-radius: var(--radius);
-    padding: 2rem 2.5rem;
-    width: 100%;
-    max-width: 360px;
-    text-align: center;
-  }
-
-  .pw-box h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    color: var(--gold);
-    margin-bottom: 0.4rem;
-    letter-spacing: 0.06em;
-  }
-
+  .pw-box { background: var(--navy-light); border: 1px solid var(--gold-dim); border-radius: var(--radius); padding: 2rem 2.5rem; width: 100%; max-width: 360px; text-align: center; }
+  .pw-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold); margin-bottom: 0.4rem; letter-spacing: 0.06em; }
   .pw-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.4rem; }
   .pw-error { font-size: 0.78rem; color: var(--danger); margin-top: 0.6rem; min-height: 1rem; }
   .pw-row { display: flex; gap: 0.5rem; margin-bottom: 0.4rem; }
 
-  #adminBadge {
-    display: none;
-    align-items: center;
-    gap: 0.6rem;
-    background: rgba(232,185,74,0.1);
-    border: 0.5px solid var(--gold-dim);
-    border-radius: 99px;
-    padding: 0.3rem 0.9rem 0.3rem 0.7rem;
-    font-size: 0.75rem;
-    color: var(--gold);
-    margin-bottom: 1.5rem;
-  }
+  /* ── admin badge / readonly ── */
+  #adminBadge { display: none; align-items: center; gap: 0.6rem; background: rgba(232,185,74,0.1); border: 0.5px solid var(--gold-dim); border-radius: 99px; padding: 0.3rem 0.9rem 0.3rem 0.7rem; font-size: 0.75rem; color: var(--gold); margin-bottom: 1.5rem; }
   #adminBadge.show { display: flex; }
   #adminBadge .dot { width: 7px; height: 7px; background: var(--gold); border-radius: 50%; }
-  #adminBadge button {
-    background: transparent; border: none; color: var(--muted);
-    font-size: 0.72rem; padding: 0; cursor: pointer; margin-left: 0.3rem;
-    font-family: 'DM Sans', sans-serif;
-  }
+  #adminBadge button { background: transparent; border: none; color: var(--muted); font-size: 0.72rem; padding: 0; cursor: pointer; margin-left: 0.3rem; font-family: 'DM Sans', sans-serif; }
   #adminBadge button:hover { color: var(--white); }
-
-  #lockBtn {
-    position: fixed;
-    bottom: 1.4rem; right: 1.4rem;
-    background: var(--navy-mid);
-    border: 0.5px solid rgba(255,255,255,0.1);
-    border-radius: 99px;
-    color: var(--muted);
-    font-size: 0.72rem;
-    padding: 0.45rem 0.9rem;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    z-index: 50;
-  }
-  #lockBtn:hover { color: var(--gold); border-color: var(--gold-dim); }
-
-  #readonlyNotice {
-    font-size: 0.75rem; color: var(--muted);
-    margin-bottom: 1.8rem; letter-spacing: 0.05em;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
-  #readonlyNotice button {
-    background: transparent; border: none; color: var(--gold-dim);
-    font-size: 0.75rem; padding: 0; cursor: pointer;
-    text-decoration: underline; font-family: 'DM Sans', sans-serif;
-  }
+  #readonlyNotice { font-size: 0.75rem; color: var(--muted); margin-bottom: 1.8rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; }
+  #readonlyNotice button { background: transparent; border: none; color: var(--gold-dim); font-size: 0.75rem; padding: 0; cursor: pointer; text-decoration: underline; font-family: 'DM Sans', sans-serif; }
   #readonlyNotice button:hover { color: var(--gold); }
 
-  h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3rem, 8vw, 5.5rem);
-    letter-spacing: 0.05em; color: var(--gold);
-    text-align: center; line-height: 1; margin-bottom: 0.2rem;
-  }
+  /* ── main UI ── */
+  #mainUI { display: none; flex-direction: column; align-items: center; width: 100%; }
+  #mainUI.show { display: flex; }
 
-  .subtitle {
-    font-size: 0.85rem; color: var(--muted); text-align: center;
-    margin-bottom: 1.2rem; letter-spacing: 0.08em; text-transform: uppercase;
-  }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 8vw, 5.5rem); letter-spacing: 0.05em; color: var(--gold); text-align: center; line-height: 1; margin-bottom: 0.2rem; }
+  .subtitle { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 1.2rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
   .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
-
-  .stat {
-    background: var(--navy-mid); border: 0.5px solid rgba(232,185,74,0.25);
-    border-radius: var(--radius); padding: 0.6rem 1.2rem; text-align: center;
-  }
+  .stat { background: var(--navy-mid); border: 0.5px solid rgba(232,185,74,0.25); border-radius: var(--radius); padding: 0.6rem 1.2rem; text-align: center; }
   .stat-number { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--gold); line-height: 1; }
   .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
 
-  .captain-card {
-    background: var(--navy-light); border: 1.5px solid var(--gold-dim);
-    border-radius: var(--radius); padding: 2rem 2.5rem;
-    text-align: center; width: 100%; max-width: 440px;
-    margin-bottom: 1.2rem; transition: border-color 0.3s;
-  }
+  .captain-card { background: var(--navy-light); border: 1.5px solid var(--gold-dim); border-radius: var(--radius); padding: 2rem 2.5rem; text-align: center; width: 100%; max-width: 440px; margin-bottom: 1.2rem; transition: border-color 0.3s; }
   .captain-card.revealed { border-color: var(--gold); animation: glow-pulse 1.5s ease-out; }
-
-  @keyframes glow-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(232,185,74,0.45); }
-    50% { box-shadow: 0 0 24px 6px rgba(232,185,74,0.2); }
-    100% { box-shadow: none; }
-  }
+  @keyframes glow-pulse { 0% { box-shadow: 0 0 0 0 rgba(232,185,74,0.45); } 50% { box-shadow: 0 0 24px 6px rgba(232,185,74,0.2); } 100% { box-shadow: none; } }
 
   .captain-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
-
-  .captain-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.2rem, 7vw, 3.4rem); color: var(--gold-light);
-    letter-spacing: 0.04em; min-height: 4rem;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .captain-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.2rem, 7vw, 3.4rem); color: var(--gold-light); letter-spacing: 0.04em; min-height: 4rem; display: flex; align-items: center; justify-content: center; }
   .captain-name.empty { color: var(--muted); font-size: 1.1rem; font-family: 'DM Sans', sans-serif; font-weight: 400; }
-
   .action-row { display: flex; gap: 0.7rem; margin-top: 1.4rem; justify-content: center; flex-wrap: wrap; }
 
-  button {
-    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
-    border: none; border-radius: 8px; padding: 0.65rem 1.3rem;
-    cursor: pointer; transition: opacity 0.15s, transform 0.1s; letter-spacing: 0.03em;
-  }
+  button { font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; border: none; border-radius: 8px; padding: 0.65rem 1.3rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s; letter-spacing: 0.03em; }
   button:active { transform: scale(0.97); }
   button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-
   .btn-primary { background: var(--gold); color: var(--navy); }
   .btn-primary:hover:not(:disabled) { background: var(--gold-light); }
   .btn-skip { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
@@ -179,9 +87,7 @@
   .btn-danger:hover:not(:disabled) { border-color: var(--danger); }
 
   .section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 2rem 0 0.8rem; width: 100%; max-width: 640px; padding: 0 0.25rem; }
-
   .list-box { background: var(--navy-mid); border: 0.5px solid rgba(255,255,255,0.07); border-radius: var(--radius); width: 100%; max-width: 640px; overflow: hidden; }
-
   .list-item { display: flex; align-items: center; padding: 0.65rem 1rem; border-bottom: 0.5px solid rgba(255,255,255,0.05); font-size: 0.9rem; gap: 0.75rem; }
   .list-item:last-child { border-bottom: none; }
   .list-num { font-size: 0.7rem; color: var(--muted); min-width: 22px; text-align: right; }
@@ -190,7 +96,7 @@
 
   .badge { font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 99px; font-weight: 500; }
   .badge-done { background: rgba(58,170,110,0.15); color: var(--success); }
-  .badge-skip { background: rgba(232,185,74,0.12); color: var(--gold-dim); }
+  .badge-queued { background: rgba(232,185,74,0.12); color: var(--gold-dim); }
 
   .empty-state { padding: 1.5rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
 
@@ -198,15 +104,14 @@
   .cycle-banner strong { display: block; font-size: 1.1rem; margin-bottom: 0.3rem; }
 
   .manage-row { display: flex; gap: 0.6rem; margin-top: 1.5rem; width: 100%; max-width: 640px; justify-content: flex-end; flex-wrap: wrap; }
-
   .add-form { display: flex; gap: 0.6rem; width: 100%; max-width: 640px; margin-top: 0.5rem; }
 
-  input[type="text"], input[type="password"] {
+  input[type="text"], input[type="password"], input[type="url"] {
     flex: 1; background: var(--navy-mid); border: 0.5px solid rgba(255,255,255,0.15);
     border-radius: 8px; color: var(--white); font-family: 'DM Sans', sans-serif;
     font-size: 0.88rem; padding: 0.6rem 0.9rem; outline: none;
   }
-  input[type="text"]:focus, input[type="password"]:focus { border-color: var(--gold-dim); }
+  input:focus { border-color: var(--gold-dim); }
 
   .tabs { display: flex; gap: 0.3rem; margin-bottom: 0.6rem; }
   .tab { padding: 0.4rem 1rem; border-radius: 7px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: 0.5px solid transparent; background: transparent; color: var(--muted); letter-spacing: 0.04em; }
@@ -216,15 +121,21 @@
 
   .change-pw-box { background: var(--navy-mid); border: 0.5px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 1rem 1.2rem; width: 100%; max-width: 640px; margin-top: 0.5rem; }
 
+  #lockBtn { position: fixed; bottom: 1.4rem; right: 1.4rem; background: var(--navy-mid); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 99px; color: var(--muted); font-size: 0.72rem; padding: 0.45rem 0.9rem; cursor: pointer; letter-spacing: 0.05em; z-index: 50; }
+  #lockBtn:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+  .saving-indicator { font-size: 0.72rem; color: var(--muted); text-align: center; min-height: 1.2rem; margin-top: 0.4rem; }
+
   footer { margin-top: 3rem; font-size: 0.72rem; color: var(--muted); text-align: center; letter-spacing: 0.05em; }
 </style>
 </head>
 <body>
 
+<!-- Password overlay -->
 <div id="pwOverlay">
   <div class="pw-box">
     <h2>Admin Access</h2>
-    <p>Enter the password to manage the captain rotation.</p>
+    <p>Enter the admin password to manage the rotation.</p>
     <div class="pw-row">
       <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')submitPassword()" />
       <button class="btn-primary" onclick="submitPassword()">Enter</button>
@@ -234,128 +145,236 @@
   </div>
 </div>
 
-<h1>Captain of the Day</h1>
-<p class="subtitle">Daily team rotation tracker</p>
+<!-- Setup screen (shown until Supabase is configured) -->
+<div id="setupScreen" style="display:none;">
+  <h2>First-time setup</h2>
+  <p>This app needs a free Supabase database so everyone sees the same data. Follow the steps below — it takes about 5 minutes.</p>
 
-<div id="adminBadge">
-  <span class="dot"></span>
-  Admin mode
-  <button onclick="logout()">Log out</button>
-</div>
+  <div style="background:var(--navy-mid);border-radius:var(--radius);padding:1.2rem 1.4rem;font-size:0.82rem;line-height:1.8;color:var(--white);margin-bottom:1.2rem;">
+    <strong style="color:var(--gold);display:block;margin-bottom:0.5rem;">Setup steps:</strong>
+    1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → sign up free<br>
+    2. Click <strong>New project</strong>, give it any name, set a database password<br>
+    3. Wait ~1 min for it to provision, then go to <strong>Project Settings → API</strong><br>
+    4. Copy your <strong>Project URL</strong> and <strong>anon public</strong> key into the fields below<br>
+    5. Go to the <strong>SQL Editor</strong> in your Supabase project and run this query:<br>
+    <pre style="background:var(--navy);padding:0.8rem;border-radius:8px;margin-top:0.6rem;font-size:0.75rem;overflow-x:auto;color:var(--gold-light);">CREATE TABLE guild_state (
+  id TEXT PRIMARY KEY DEFAULT 'main',
+  data JSONB NOT NULL
+);
 
-<div id="readonlyNotice">
-  Viewing only &nbsp;·&nbsp; <button onclick="openOverlay()">Admin login</button>
-</div>
+INSERT INTO guild_state (id, data) VALUES ('main', '{
+  "team": [],
+  "remaining": [],
+  "done": [],
+  "current": null,
+  "adminPw": "captain123"
+}'::jsonb);
 
-<div class="stats-bar" id="statsBar"></div>
+ALTER TABLE guild_state ENABLE ROW LEVEL SECURITY;
 
-<div class="cycle-banner" id="cycleBanner">
-  <strong>Cycle complete!</strong>
-  Everyone has had a turn. Starting a fresh cycle.
-</div>
+CREATE POLICY "public read"
+  ON guild_state FOR SELECT USING (true);
 
-<div class="captain-card" id="captainCard">
-  <div class="captain-label">Today's captain</div>
-  <div class="captain-name empty" id="captainName">No captain picked yet</div>
-  <div class="action-row" id="actionRow"></div>
-</div>
-
-<div style="width:100%;max-width:640px;margin-top:0.5rem;">
-  <div class="tabs" id="tabBar">
-    <button class="tab active" onclick="switchTab('remaining',event)">Remaining</button>
-    <button class="tab" onclick="switchTab('done',event)">Completed</button>
-    <button class="tab admin-only" id="manageTab" onclick="switchTab('manage',event)" style="display:none;">Manage Team</button>
+CREATE POLICY "public write"
+  ON guild_state FOR UPDATE USING (true);
+    </pre>
+    6. Paste your URL and key below and click <strong>Connect</strong>
   </div>
 
-  <div class="panel active" id="panel-remaining">
-    <div class="section-title">Remaining this cycle</div>
-    <div class="list-box" id="remainingList"></div>
+  <div class="field-label">Supabase Project URL</div>
+  <input type="url" id="setupUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" style="width:100%;flex:none;margin-bottom:0.8rem;" />
+
+  <div class="field-label">Supabase Anon Key</div>
+  <input type="text" id="setupKey" placeholder="eyJhbGciOi..." style="width:100%;flex:none;margin-bottom:1.2rem;" />
+
+  <button class="btn-primary" onclick="connectSupabase()" style="width:100%;">Connect to Supabase</button>
+  <div id="setupError" style="font-size:0.78rem;color:var(--danger);margin-top:0.6rem;min-height:1rem;"></div>
+
+  <div class="setup-note">
+    Your Supabase anon key is safe to expose in a public HTML file — it only has the permissions you set in the SQL above (public read + write on this one table).
+  </div>
+</div>
+
+<!-- Loading spinner -->
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <span>Loading guild data…</span>
+</div>
+
+<!-- Main UI -->
+<div id="mainUI">
+  <h1>Captain of the Day</h1>
+  <p class="subtitle" id="guildSubtitle">Guild rotation tracker</p>
+
+  <div id="adminBadge">
+    <span class="dot"></span>
+    Admin mode
+    <button onclick="logout()">Log out</button>
   </div>
 
-  <div class="panel" id="panel-done">
-    <div class="section-title">Completed this cycle</div>
-    <div class="list-box" id="doneList"></div>
+  <div id="readonlyNotice">
+    Viewing only &nbsp;·&nbsp; <button onclick="openOverlay()">Admin login</button>
   </div>
 
-  <div class="panel" id="panel-manage">
-    <div class="section-title">Add team member</div>
-    <div class="add-form">
-      <input type="text" id="newNameInput" placeholder="Full name" onkeydown="if(event.key==='Enter')addPerson()" />
-      <button class="btn-primary" onclick="addPerson()">Add</button>
+  <div class="stats-bar" id="statsBar"></div>
+
+  <div class="cycle-banner" id="cycleBanner">
+    <strong>Cycle complete!</strong>
+    Everyone has had a turn. Starting a fresh cycle.
+  </div>
+
+  <div class="captain-card" id="captainCard">
+    <div class="captain-label">Today's captain</div>
+    <div class="captain-name empty" id="captainName">No captain picked yet</div>
+    <div class="action-row" id="actionRow"></div>
+  </div>
+  <div class="saving-indicator" id="savingIndicator"></div>
+
+  <div style="width:100%;max-width:640px;margin-top:0.8rem;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('remaining',event)">Remaining</button>
+      <button class="tab" onclick="switchTab('done',event)">Completed</button>
+      <button class="tab" id="manageTab" onclick="switchTab('manage',event)" style="display:none;">Manage Guild</button>
     </div>
-    <div class="section-title" style="margin-top:1.5rem;">All team members</div>
-    <div class="list-box" id="manageList"></div>
-    <div class="manage-row">
-      <button class="btn-danger" onclick="resetCycle()">Reset cycle</button>
-      <button class="btn-danger" onclick="clearAll()">Clear all data</button>
+
+    <div class="panel active" id="panel-remaining">
+      <div class="section-title">Remaining this cycle</div>
+      <div class="list-box" id="remainingList"></div>
     </div>
 
-    <div class="section-title" style="margin-top:2rem;">Change admin password</div>
-    <div class="change-pw-box">
-      <div style="display:flex;flex-direction:column;gap:0.5rem;">
-        <input type="password" id="newPw1" placeholder="New password" style="flex:none;width:100%;" />
-        <input type="password" id="newPw2" placeholder="Confirm new password" style="flex:none;width:100%;" />
-        <div style="display:flex;justify-content:flex-end;margin-top:0.2rem;">
-          <button class="btn-primary" onclick="changePassword()" style="width:auto;">Update password</button>
+    <div class="panel" id="panel-done">
+      <div class="section-title">Completed this cycle</div>
+      <div class="list-box" id="doneList"></div>
+    </div>
+
+    <div class="panel" id="panel-manage">
+      <div class="section-title">Add member</div>
+      <div class="add-form">
+        <input type="text" id="newNameInput" placeholder="Player name" onkeydown="if(event.key==='Enter')addPerson()" />
+        <button class="btn-primary" onclick="addPerson()">Add</button>
+      </div>
+
+      <div class="section-title" style="margin-top:1.5rem;">All members</div>
+      <div class="list-box" id="manageList"></div>
+      <div class="manage-row">
+        <button class="btn-danger" onclick="resetCycle()">Reset cycle</button>
+        <button class="btn-danger" onclick="clearAll()">Remove all members</button>
+      </div>
+
+      <div class="section-title" style="margin-top:2rem;">Change admin password</div>
+      <div class="change-pw-box">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <input type="password" id="newPw1" placeholder="New password" style="flex:none;width:100%;" />
+          <input type="password" id="newPw2" placeholder="Confirm new password" style="flex:none;width:100%;" />
+          <div style="display:flex;justify-content:flex-end;margin-top:0.2rem;">
+            <button class="btn-primary" onclick="changePassword()" style="width:auto;">Update password</button>
+          </div>
+          <div id="pwChangeMsg" style="font-size:0.78rem;min-height:1rem;text-align:right;"></div>
         </div>
-        <div id="pwChangeMsg" style="font-size:0.78rem;min-height:1rem;text-align:right;"></div>
       </div>
     </div>
   </div>
+
+  <footer>Shared live data · All guild members see the same captain</footer>
 </div>
 
-<button id="lockBtn" onclick="openOverlay()">🔒 Admin</button>
-
-<footer>Data saved in your browser · Share this page with your team</footer>
+<button id="lockBtn" onclick="openOverlay()" style="display:none;">🔒 Admin</button>
 
 <script>
-const DEFAULT_PASSWORD = 'captain123';
-
-const DEFAULT_TEAM = [
-  "Alex Johnson","Bailey Smith","Cameron Lee","Dana Brown","Elliott Davis",
-  "Finley Wilson","Georgia Moore","Harper Taylor","Indigo Anderson","Jordan Thomas",
-  "Kennedy Jackson","Logan White","Morgan Harris","Noah Martin","Oakley Thompson",
-  "Parker Garcia","Quinn Martinez","River Robinson","Sage Clark","Taylor Rodriguez",
-  "Uma Lewis","Victor Lewis","Willow Walker","Xander Hall","Yara Allen",
-  "Zara Young","Aaron King","Bella Wright","Carlos Scott","Diana Green",
-  "Ethan Baker","Fiona Adams","George Nelson","Hannah Carter","Ivan Mitchell",
-  "Jade Perez","Kai Roberts","Luna Turner","Mason Phillips","Nina Campbell",
-  "Oscar Evans","Piper Edwards","Quinn Collins","Rosa Stewart","Sam Sanchez",
-  "Tara Morris","Ursula Rogers","Vincent Reed"
-];
-
+const STORAGE_KEY = 'captainSupabaseConfig';
+let supabaseClient = null;
+let state = null;
 let isAdmin = false;
-let state = loadState();
 
-function loadState() {
-  const raw = localStorage.getItem('captainPickerState');
-  if (raw) { try { return JSON.parse(raw); } catch(e) {} }
-  return { team: DEFAULT_TEAM, remaining: shuffle([...DEFAULT_TEAM]), done: [], current: null };
-}
-
-function saveState() { localStorage.setItem('captainPickerState', JSON.stringify(state)); }
-function getPassword() { return localStorage.getItem('captainAdminPw') || DEFAULT_PASSWORD; }
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+// ── init ──
+async function init() {
+  const cfg = loadConfig();
+  if (!cfg) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+    return;
   }
-  return arr;
+  await startApp(cfg.url, cfg.key);
 }
 
+function loadConfig() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e) { return null; }
+}
+
+async function connectSupabase() {
+  const url = document.getElementById('setupUrl').value.trim();
+  const key = document.getElementById('setupKey').value.trim();
+  const errEl = document.getElementById('setupError');
+  errEl.textContent = '';
+  if (!url || !key) { errEl.textContent = 'Please fill in both fields.'; return; }
+  if (!url.startsWith('https://')) { errEl.textContent = 'URL should start with https://'; return; }
+  document.querySelector('#setupScreen button.btn-primary').disabled = true;
+  document.querySelector('#setupScreen button.btn-primary').textContent = 'Connecting…';
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, key }));
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'flex';
+    await startApp(url, key);
+  } catch(e) {
+    localStorage.removeItem(STORAGE_KEY);
+    errEl.textContent = 'Could not connect: ' + e.message;
+    document.querySelector('#setupScreen button.btn-primary').disabled = false;
+    document.querySelector('#setupScreen button.btn-primary').textContent = 'Connect to Supabase';
+    document.getElementById('setupScreen').style.display = 'block';
+    document.getElementById('loadingScreen').style.display = 'none';
+  }
+}
+
+async function startApp(url, key) {
+  supabaseClient = supabase.createClient(url, key);
+  const { data, error } = await supabaseClient.from('guild_state').select('data').eq('id', 'main').single();
+  if (error) {
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+    document.getElementById('setupError').textContent = 'Connection failed: ' + error.message + '. Check your URL and key.';
+    return;
+  }
+  state = data.data;
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('mainUI').classList.add('show');
+  document.getElementById('lockBtn').style.display = 'block';
+
+  // realtime subscription — all visitors auto-refresh when admin makes changes
+  supabaseClient
+    .channel('guild_state_changes')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'guild_state' }, payload => {
+      state = payload.new.data;
+      render();
+    })
+    .subscribe();
+
+  render();
+}
+
+async function saveState() {
+  setSaving(true);
+  const { error } = await supabaseClient.from('guild_state').update({ data: state }).eq('id', 'main');
+  setSaving(false);
+  if (error) alert('Save failed: ' + error.message);
+}
+
+function setSaving(on) {
+  document.getElementById('savingIndicator').textContent = on ? 'Saving…' : '';
+}
+
+// ── auth ──
 function openOverlay() {
   document.getElementById('pwInput').value = '';
   document.getElementById('pwError').textContent = '';
   document.getElementById('pwOverlay').classList.add('open');
   setTimeout(() => document.getElementById('pwInput').focus(), 80);
 }
-
 function closeOverlay() { document.getElementById('pwOverlay').classList.remove('open'); }
 
 function submitPassword() {
   const val = document.getElementById('pwInput').value;
-  if (val === getPassword()) {
+  if (val === (state.adminPw || 'captain123')) {
     isAdmin = true;
     closeOverlay();
     render();
@@ -375,13 +394,14 @@ function logout() {
   render();
 }
 
-function changePassword() {
+async function changePassword() {
   const p1 = document.getElementById('newPw1').value.trim();
   const p2 = document.getElementById('newPw2').value.trim();
   const msg = document.getElementById('pwChangeMsg');
   if (!p1) { msg.style.color = 'var(--danger)'; msg.textContent = 'Password cannot be empty.'; return; }
   if (p1 !== p2) { msg.style.color = 'var(--danger)'; msg.textContent = 'Passwords do not match.'; return; }
-  localStorage.setItem('captainAdminPw', p1);
+  state.adminPw = p1;
+  await saveState();
   document.getElementById('newPw1').value = '';
   document.getElementById('newPw2').value = '';
   msg.style.color = 'var(--success)';
@@ -389,10 +409,21 @@ function changePassword() {
   setTimeout(() => msg.textContent = '', 3000);
 }
 
-function pickCaptain() {
+// ── helpers ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── captain logic ──
+async function pickCaptain() {
   if (!isAdmin) return;
   if (state.remaining.length === 0) {
-    state.remaining = shuffle([...state.done]);
+    state.remaining = shuffle(state.done);
     state.done = [];
     state.current = null;
     document.getElementById('cycleBanner').style.display = 'block';
@@ -401,70 +432,70 @@ function pickCaptain() {
   if (state.remaining.length === 0) { render(); return; }
   const idx = Math.floor(Math.random() * state.remaining.length);
   state.current = state.remaining.splice(idx, 1)[0];
-  saveState(); render();
+  await saveState();
+  render();
   const card = document.getElementById('captainCard');
   card.classList.remove('revealed');
   void card.offsetWidth;
   card.classList.add('revealed');
 }
 
-function skipBack() {
+async function skipBack() {
   if (!isAdmin || !state.current) return;
-  state.remaining.push(state.current);
-  state.remaining = shuffle(state.remaining);
+  state.remaining = shuffle([...state.remaining, state.current]);
   state.current = null;
-  saveState(); render();
+  await saveState(); render();
 }
 
-function markDone() {
+async function markDone() {
   if (!isAdmin || !state.current) return;
-  state.done.push(state.current);
+  state.done = [...state.done, state.current];
   state.current = null;
-  saveState(); render();
+  await saveState(); render();
 }
 
-function skipToDone() {
+async function skipToDone() {
   if (!isAdmin || !state.current) return;
-  state.done.push(state.current);
+  state.done = [...state.done, state.current];
   state.current = null;
-  saveState(); render();
+  await saveState(); render();
 }
 
-function addPerson() {
+async function addPerson() {
   if (!isAdmin) return;
   const input = document.getElementById('newNameInput');
   const name = input.value.trim();
   if (!name || state.team.includes(name)) { input.value = ''; return; }
-  state.team.push(name);
-  state.remaining.push(name);
+  state.team = [...state.team, name];
+  state.remaining = [...state.remaining, name];
   input.value = '';
-  saveState(); render();
+  await saveState(); render();
 }
 
-function removePerson(name) {
+async function removePerson(name) {
   if (!isAdmin) return;
-  if (!confirm('Remove ' + name + ' from the team?')) return;
+  if (!confirm('Remove ' + name + ' from the guild?')) return;
   state.team = state.team.filter(n => n !== name);
   state.remaining = state.remaining.filter(n => n !== name);
   state.done = state.done.filter(n => n !== name);
   if (state.current === name) state.current = null;
-  saveState(); render();
+  await saveState(); render();
 }
 
-function resetCycle() {
+async function resetCycle() {
   if (!isAdmin) return;
   if (!confirm('Reset the cycle? Everyone goes back into the pool.')) return;
-  state.remaining = shuffle([...state.team]);
-  state.done = []; state.current = null;
-  saveState(); render();
+  state.remaining = shuffle(state.team);
+  state.done = [];
+  state.current = null;
+  await saveState(); render();
 }
 
-function clearAll() {
+async function clearAll() {
   if (!isAdmin) return;
-  if (!confirm('Clear ALL data and start fresh?')) return;
-  localStorage.removeItem('captainPickerState');
-  state = loadState();
-  saveState(); render();
+  if (!confirm('Remove ALL members? This cannot be undone.')) return;
+  state.team = []; state.remaining = []; state.done = []; state.current = null;
+  await saveState(); render();
 }
 
 function switchTab(tab, e) {
@@ -474,28 +505,27 @@ function switchTab(tab, e) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+// ── render ──
 function render() {
-  const badge = document.getElementById('adminBadge');
-  const notice = document.getElementById('readonlyNotice');
-  const lockBtn = document.getElementById('lockBtn');
-  const manageTab = document.getElementById('manageTab');
+  if (!state) return;
 
+  // admin/readonly UI
   if (isAdmin) {
-    badge.classList.add('show');
-    notice.style.display = 'none';
-    lockBtn.style.display = 'none';
-    manageTab.style.display = '';
+    document.getElementById('adminBadge').classList.add('show');
+    document.getElementById('readonlyNotice').style.display = 'none';
+    document.getElementById('lockBtn').style.display = 'none';
+    document.getElementById('manageTab').style.display = '';
   } else {
-    badge.classList.remove('show');
-    notice.style.display = 'flex';
-    lockBtn.style.display = 'block';
-    manageTab.style.display = 'none';
+    document.getElementById('adminBadge').classList.remove('show');
+    document.getElementById('readonlyNotice').style.display = 'flex';
+    document.getElementById('lockBtn').style.display = 'block';
+    document.getElementById('manageTab').style.display = 'none';
   }
 
   document.getElementById('statsBar').innerHTML = `
     <div class="stat"><div class="stat-number">${state.remaining.length}</div><div class="stat-label">Remaining</div></div>
     <div class="stat"><div class="stat-number">${state.done.length}</div><div class="stat-label">Completed</div></div>
-    <div class="stat"><div class="stat-number">${state.team.length}</div><div class="stat-label">Team size</div></div>
+    <div class="stat"><div class="stat-number">${state.team.length}</div><div class="stat-label">Members</div></div>
   `;
 
   const nameEl = document.getElementById('captainName');
@@ -510,7 +540,7 @@ function render() {
       <button class="btn-skip" onclick="skipToDone()" style="font-size:0.78rem;padding:0.5rem 0.9rem;">Skip — remove from cycle</button>
     ` : '';
   } else {
-    nameEl.textContent = 'No captain picked yet';
+    nameEl.textContent = state.team.length === 0 ? 'No members added yet' : 'No captain picked yet';
     nameEl.classList.add('empty');
     actionRow.innerHTML = isAdmin
       ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>Pick Captain</button>`
@@ -530,21 +560,20 @@ function render() {
   if (isAdmin) {
     const manageList = document.getElementById('manageList');
     manageList.innerHTML = state.team.length === 0
-      ? '<div class="empty-state">No team members yet.</div>'
+      ? '<div class="empty-state">No members yet. Add some above.</div>'
       : state.team.map(n => {
           const isCurrent = state.current === n;
           const inDone = state.done.includes(n);
-          const inRemaining = state.remaining.includes(n);
           let badge = '';
           if (isCurrent) badge = `<span class="badge" style="background:rgba(232,185,74,0.15);color:var(--gold);">Today</span>`;
           else if (inDone) badge = `<span class="badge badge-done">Done</span>`;
-          else if (inRemaining) badge = `<span class="badge badge-skip">Queued</span>`;
+          else badge = `<span class="badge badge-queued">Queued</span>`;
           return `<div class="list-item"><span class="list-name">${n}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
         }).join('');
   }
 }
 
-render();
+init();
 </script>
 </body>
 </html>
