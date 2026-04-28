@@ -1133,10 +1133,13 @@ function render() {
         const skullHtml2 = isAdmin
           ? Array.from({length: skullCount2}, () => `<span class="skull-clickable" onclick="removeSkull('${d.name.replace(/'/g,"\\'")}')">💀</span>`).join('')
           : '💀'.repeat(skullCount2);
+        const addSkullBtn2 = isAdmin
+          ? `<button class="btn-skull ${skullCount2 >= 3 ? 'btn-skull-max' : ''}" onclick="addSkull('${d.name.replace(/'/g,"\\'")}')">💀</button>`
+          : '';
         return `<div class="list-item done-item">
           <span class="list-num">${i+1}</span>
           <span class="list-name">${d.name}${skullCount2 ? `<span class="skull-row">${skullHtml2}</span>` : ''}</span>
-          ${badge}${restoreBtn}
+          ${badge}${restoreBtn}${addSkullBtn2}
         </div>`;
       }).join('');
 
@@ -1156,7 +1159,8 @@ function render() {
           else badge = `<span class="badge badge-queued">Queued</span>`;
           const skullCountM = (state.skulls && state.skulls[n]) || 0;
           const skullHtmlM = skullCountM ? '<span class="skull-row">' + Array.from({length: skullCountM}, () => `<span class="skull-clickable" onclick="removeSkull('${n.replace(/'/g,"\\'")}')">💀</span>`).join('') + '</span>' : '';
-          return `<div class="list-item"><span class="list-name">${n}${skullHtmlM}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
+          const addSkullBtnM = `<button class="btn-skull ${skullCountM >= 3 ? 'btn-skull-max' : ''}" onclick="addSkull('${n.replace(/'/g,"\\'")}')">💀</button>`;
+          return `<div class="list-item"><span class="list-name">${n}${skullHtmlM}</span>${badge}${addSkullBtnM}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
         }).join('');
   }
 }
