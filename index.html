@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain of the Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e42;
+    --navy-light: #243b55;
+    --gold: #e8b94a;
+    --gold-light: #f5d47a;
+    --gold-dim: #a07e2e;
+    --white: #f4f1eb;
+    --muted: #8a9bb0;
+    --danger: #d9534f;
+    --danger-dark: #a33a37;
+    --success: #3aaa6e;
+    --radius: 12px;
+  }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat {
+    background: var(--navy-mid);
+    border: 0.5px solid rgba(232,185,74,0.25);
+    border-radius: var(--radius);
+    padding: 0.6rem 1.2rem;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .captain-card {
+    background: var(--navy-light);
+    border: 1.5px solid var(--gold-dim);
+    border-radius: var(--radius);
+    padding: 2rem 2.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: 1.2rem;
+    transition: border-color 0.3s;
+  }
+
+  .captain-card.revealed {
+    border-color: var(--gold);
+    animation: glow-pulse 1.5s ease-out;
+  }
+
+  @keyframes glow-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(232,185,74,0.45); }
+    50% { box-shadow: 0 0 24px 6px rgba(232,185,74,0.2); }
+    100% { box-shadow: none; }
+  }
+
+  .captain-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+  }
+
+  .captain-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 7vw, 3.4rem);
+    color: var(--gold-light);
+    letter-spacing: 0.04em;
+    min-height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .captain-name.empty {
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.3rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.03em;
+  }
+
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--gold-light); }
+
+  .btn-skip {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+  }
+  .btn-skip:hover:not(:disabled) { border-color: var(--gold); }
+
+  .btn-done {
+    background: var(--success);
+    color: #fff;
+  }
+  .btn-done:hover:not(:disabled) { opacity: 0.88; }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(217,83,79,0.4);
+    font-size: 0.78rem;
+    padding: 0.45rem 1rem;
+  }
+  .btn-danger:hover:not(:disabled) { border-color: var(--danger); }
+
+  .section-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin: 2rem 0 0.8rem;
+    width: 100%;
+    max-width: 640px;
+    padding: 0 0.25rem;
+  }
+
+  .list-box {
+    background: var(--navy-mid);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 640px;
+    overflow: hidden;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    font-size: 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .list-item:last-child { border-bottom: none; }
+
+  .list-num {
+    font-size: 0.7rem;
+    color: var(--muted);
+    min-width: 22px;
+    text-align: right;
+  }
+
+  .list-name { flex: 1; }
+
+  .list-item.done-item .list-name { color: var(--muted); }
+
+  .badge {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+
+  .badge-done { background: rgba(58,170,110,0.15); color: var(--success); }
+  .badge-skip { background: rgba(232,185,74,0.12); color: var(--gold-dim); }
+
+  .empty-state {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .cycle-banner {
+    display: none;
+    background: var(--success);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .cycle-banner strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .manage-row {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+    width: 100%;
+    max-width: 640px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .add-form {
+    display: flex;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 640px;
+    margin-top: 0.5rem;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--navy-mid);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 0.6rem 0.9rem;
+    outline: none;
+  }
+
+  input[type="text"]:focus { border-color: var(--gold-dim); }
+
+  .collapsible-toggle {
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding: 0.3rem 0.5rem;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tab {
+    padding: 0.4rem 1rem;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0.5px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .tab.active {
+    background: var(--navy-light);
+    color: var(--gold);
+    border-color: var(--gold-dim);
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  footer {
+    margin-top: 3rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<h1>Captain of the Day</h1>
+<p class="subtitle">Daily team rotation tracker</p>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="cycle-banner" id="cycleBanner">
+  <strong>Cycle complete!</strong>
+  Everyone has had a turn. Starting a fresh cycle.
+</div>
+
+<div class="captain-card" id="captainCard">
+  <div class="captain-label">Today's captain</div>
+  <div class="captain-name empty" id="captainName">Press "Pick Captain" to start</div>
+  <div class="action-row" id="actionRow">
+    <button class="btn-primary" onclick="pickCaptain()" id="pickBtn">Pick Captain</button>
+  </div>
+</div>
+
+<div style="width:100%;max-width:640px;margin-top:0.5rem;">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('remaining')">Remaining</button>
+    <button class="tab" onclick="switchTab('done')">Completed</button>
+    <button class="tab" onclick="switchTab('manage')">Manage Team</button>
+  </div>
+
+  <div class="panel active" id="panel-remaining">
+    <div class="section-title" id="remainingTitle">Remaining this cycle</div>
+    <div class="list-box" id="remainingList"></div>
+  </div>
+
+  <div class="panel" id="panel-done">
+    <div class="section-title">Completed this cycle</div>
+    <div class="list-box" id="doneList"></div>
+  </div>
+
+  <div class="panel" id="panel-manage">
+    <div class="section-title">Add team member</div>
+    <div class="add-form">
+      <input type="text" id="newNameInput" placeholder="Full name" onkeydown="if(event.key==='Enter')addPerson()" />
+      <button class="btn-primary" onclick="addPerson()">Add</button>
+    </div>
+    <div class="section-title" style="margin-top:1.5rem;">All team members</div>
+    <div class="list-box" id="manageList"></div>
+    <div class="manage-row">
+      <button class="btn-danger" onclick="resetCycle()">Reset cycle</button>
+      <button class="btn-danger" onclick="clearAll()">Clear all data</button>
+    </div>
+  </div>
+</div>
+
+<footer>Data saved in your browser · Share this page with your team</footer>
+
+<script>
+const DEFAULT_TEAM = [
+  "Alex Johnson","Bailey Smith","Cameron Lee","Dana Brown","Elliott Davis",
+  "Finley Wilson","Georgia Moore","Harper Taylor","Indigo Anderson","Jordan Thomas",
+  "Kennedy Jackson","Logan White","Morgan Harris","Noah Martin","Oakley Thompson",
+  "Parker Garcia","Quinn Martinez","River Robinson","Sage Clark","Taylor Rodriguez",
+  "Uma Lewis","Victor Lewis","Willow Walker","Xander Hall","Yara Allen",
+  "Zara Young","Aaron King","Bella Wright","Carlos Scott","Diana Green",
+  "Ethan Baker","Fiona Adams","George Nelson","Hannah Carter","Ivan Mitchell",
+  "Jade Perez","Kai Roberts","Luna Turner","Mason Phillips","Nina Campbell",
+  "Oscar Evans","Piper Edwards","Quinn Collins","Rosa Stewart","Sam Sanchez",
+  "Tara Morris","Ursula Rogers","Vincent Reed"
+];
+
+let state = load();
+
+function load() {
+  const raw = localStorage.getItem('captainPickerState');
+  if (raw) {
+    try { return JSON.parse(raw); } catch(e) {}
+  }
+  const shuffled = shuffle([...DEFAULT_TEAM]);
+  return { team: DEFAULT_TEAM, remaining: shuffled, done: [], current: null };
+}
+
+function save() {
+  localStorage.setItem('captainPickerState', JSON.stringify(state));
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickCaptain() {
+  if (state.remaining.length === 0) {
+    state.remaining = shuffle([...state.done]);
+    state.done = [];
+    state.current = null;
+    document.getElementById('cycleBanner').style.display = 'block';
+    setTimeout(() => document.getElementById('cycleBanner').style.display = 'none', 4000);
+  }
+  if (state.remaining.length === 0) { render(); return; }
+  const idx = Math.floor(Math.random() * state.remaining.length);
+  state.current = state.remaining.splice(idx, 1)[0];
+  save();
+  render();
+  const card = document.getElementById('captainCard');
+  card.classList.remove('revealed');
+  void card.offsetWidth;
+  card.classList.add('revealed');
+}
+
+function skipBack() {
+  if (!state.current) return;
+  state.remaining.push(state.current);
+  state.remaining = shuffle(state.remaining);
+  state.current = null;
+  save();
+  render();
+}
+
+function markDone() {
+  if (!state.current) return;
+  state.done.push(state.current);
+  state.current = null;
+  save();
+  render();
+}
+
+function skipToDone() {
+  if (!state.current) return;
+  state.done.push(state.current);
+  state.current = null;
+  save();
+  render();
+}
+
+function addPerson() {
+  const input = document.getElementById('newNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (state.team.includes(name)) { input.value = ''; return; }
+  state.team.push(name);
+  state.remaining.push(name);
+  input.value = '';
+  save();
+  render();
+}
+
+function removePerson(name) {
+  if (!confirm('Remove ' + name + ' from the team?')) return;
+  state.team = state.team.filter(n => n !== name);
+  state.remaining = state.remaining.filter(n => n !== name);
+  state.done = state.done.filter(n => n !== name);
+  if (state.current === name) state.current = null;
+  save();
+  render();
+}
+
+function resetCycle() {
+  if (!confirm('Reset the cycle? Everyone goes back into the pool.')) return;
+  state.remaining = shuffle([...state.team]);
+  state.done = [];
+  state.current = null;
+  save();
+  render();
+}
+
+function clearAll() {
+  if (!confirm('Clear ALL data and start fresh?')) return;
+  localStorage.removeItem('captainPickerState');
+  state = load();
+  save();
+  render();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function render() {
+  const statsBar = document.getElementById('statsBar');
+  statsBar.innerHTML = `
+    <div class="stat"><div class="stat-number">${state.remaining.length}</div><div class="stat-label">Remaining</div></div>
+    <div class="stat"><div class="stat-number">${state.done.length}</div><div class="stat-label">Completed</div></div>
+    <div class="stat"><div class="stat-number">${state.team.length}</div><div class="stat-label">Team size</div></div>
+  `;
+
+  const nameEl = document.getElementById('captainName');
+  const actionRow = document.getElementById('actionRow');
+
+  if (state.current) {
+    nameEl.textContent = state.current;
+    nameEl.classList.remove('empty');
+    actionRow.innerHTML = `
+      <button class="btn-done" onclick="markDone()">✓ Captain confirmed</button>
+      <button class="btn-skip" onclick="skipBack()">Skip — reshuffle back in</button>
+      <button class="btn-skip" onclick="skipToDone()" style="font-size:0.78rem;padding:0.5rem 0.9rem;">Skip — remove from cycle</button>
+    `;
+  } else {
+    nameEl.textContent = state.remaining.length > 0 ? 'Press "Pick Captain" to start' : 'No one left!';
+    nameEl.classList.add('empty');
+    actionRow.innerHTML = `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>Pick Captain</button>`;
+  }
+
+  const remainingList = document.getElementById('remainingList');
+  if (state.remaining.length === 0) {
+    remainingList.innerHTML = '<div class="empty-state">No one remaining in this cycle.</div>';
+  } else {
+    remainingList.innerHTML = state.remaining.map((n, i) =>
+      `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span></div>`
+    ).join('');
+  }
+
+  const doneList = document.getElementById('doneList');
+  if (state.done.length === 0) {
+    doneList.innerHTML = '<div class="empty-state">No one completed yet this cycle.</div>';
+  } else {
+    doneList.innerHTML = state.done.map((n, i) =>
+      `<div class="list-item done-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span><span class="badge badge-done">Done</span></div>`
+    ).join('');
+  }
+
+  const manageList = document.getElementById('manageList');
+  if (state.team.length === 0) {
+    manageList.innerHTML = '<div class="empty-state">No team members yet.</div>';
+  } else {
+    manageList.innerHTML = state.team.map(n => {
+      const inDone = state.done.includes(n);
+      const inRemaining = state.remaining.includes(n);
+      const isCurrent = state.current === n;
+      let badge = '';
+      if (isCurrent) badge = `<span class="badge" style="background:rgba(232,185,74,0.15);color:var(--gold);">Today</span>`;
+      else if (inDone) badge = `<span class="badge badge-done">Done</span>`;
+      else if (inRemaining) badge = `<span class="badge badge-skip">Queued</span>`;
+      return `<div class="list-item"><span class="list-name">${n}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
+    }).join('');
+  }
+}
+
+render();
+</script>
+</body>
+</html>
