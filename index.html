@@ -3,124 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NullZero — Captain Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<title>NullZero — Captain of the Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #2a2420;
-  --bg2:       #332b25;
-  --bg3:       #3d332b;
-  --panel:     #2e2620;
-  --panel2:    #3a2f27;
-  --border:    #6b4e2e;
-  --border-hi: #c8892a;
-  --gold:      #f0b429;
-  --gold-hi:   #ffd966;
-  --gold-dim:  #9a6e14;
-  --cream:     #f5e8c8;
-  --muted:     #9a8068;
-  --danger:    #c0392b;
-  --success:   #2e8b57;
-  --radius:    14px;
-  --radius-sm: 8px;
+  --ocean:      #1a5f8a;
+  --ocean-deep: #0e3d5c;
+  --ocean-mid:  #1e6fa0;
+  --ocean-light:#2a8bc0;
+  --foam:       #e8f4f8;
+  --foam-mid:   #c8e8f4;
+  --sand:       #f5e6c8;
+  --sand-dark:  #e8d4a8;
+  --coral:      #ff6b6b;
+  --coral-dark: #e05555;
+  --sun:        #ffd93d;
+  --sun-dark:   #f0c020;
+  --mint:       #4ecdc4;
+  --mint-dark:  #3ab5ac;
+  --navy:       #1a2744;
+  --rope:       #c8a86b;
+  --rope-dark:  #a88848;
+  --white:      #ffffff;
+  --muted:      #6b8fa8;
+  --radius:     20px;
+  --radius-sm:  12px;
+  --radius-xs:  8px;
 }
 
 html { scroll-behavior: smooth; }
 
+/* ══════════════════════════════════════
+   OCEAN BACKGROUND
+══════════════════════════════════════ */
 body {
-  color: var(--cream);
   font-family: 'Nunito', sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0 1rem 5rem;
-  background: var(--bg);
-  background-image: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(240,180,41,0.07) 0%, transparent 70%);
+  background: var(--ocean-deep);
+  color: var(--navy);
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* ═══ HEADER ═══ */
+/* Animated ocean waves at the bottom */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%231a5f8a' fill-opacity='0.5' d='M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z'/%3E%3Cpath fill='%232a8bc0' fill-opacity='0.3' d='M0,96L48,90.7C96,85,192,75,288,69.3C384,64,480,64,576,74.7C672,85,768,107,864,106.7C960,107,1056,85,1152,74.7C1248,64,1344,64,1392,64L1440,64L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z'/%3E%3C/svg%3E") bottom/cover no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating bubbles */
+.bubble {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: float-up linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes float-up {
+  0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* Stars/sparkles on the water surface */
+.sparkle {
+  position: fixed;
+  width: 4px; height: 4px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50%       { opacity: 1; transform: scale(1.2); }
+}
+
+body > * { position: relative; z-index: 1; }
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
 .site-header {
   width: 100%;
-  max-width: 720px;
+  max-width: 680px;
   text-align: center;
-  padding: 2.5rem 1rem 1rem;
+  padding: 2.5rem 1rem 0.5rem;
 }
 
-.header-deco {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
-  margin-bottom: 0.5rem;
+.header-ship {
+  font-size: 3rem;
+  margin-bottom: 0.3rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  animation: bob 3s ease-in-out infinite;
 }
 
-.deco-line {
-  height: 1px;
-  flex: 1;
-  background: linear-gradient(to right, transparent, var(--border-hi), transparent);
-  max-width: 120px;
-}
-
-.deco-diamond {
-  width: 8px; height: 8px;
-  background: var(--gold);
-  transform: rotate(45deg);
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(240,180,41,0.5);
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%       { transform: translateY(-6px) rotate(2deg); }
 }
 
 .site-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.8rem, 6vw, 3.2rem);
-  font-weight: 900;
-  color: var(--gold-hi);
-  letter-spacing: 0.04em;
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2rem, 7vw, 3.6rem);
+  color: var(--sun);
+  letter-spacing: 0.02em;
   line-height: 1.1;
-  text-shadow: 0 0 40px rgba(240,180,41,0.45), 0 2px 0 rgba(0,0,0,0.8);
+  text-shadow: 3px 3px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.4);
   margin-bottom: 0.3rem;
 }
 
 .site-tagline {
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  color: var(--foam-mid);
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  margin-bottom: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+  opacity: 0.8;
 }
 
-/* ═══ LOADING ═══ */
+.rope-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.6rem;
+  width: 100%;
+  max-width: 680px;
+}
+.rope-line {
+  flex: 1;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rope) 0px, var(--rope) 6px,
+    var(--rope-dark) 6px, var(--rope-dark) 12px
+  );
+  border-radius: 2px;
+  opacity: 0.6;
+}
+.rope-knot { font-size: 1rem; }
+
+/* ══════════════════════════════════════
+   LOADING
+══════════════════════════════════════ */
 #loadingScreen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1rem;
   margin-top: 4rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.08em;
+  color: var(--foam-mid);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
-
 .spinner {
-  width: 36px; height: 36px;
-  border: 2px solid rgba(240,180,41,0.15);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+  font-size: 2.4rem;
+  animation: spin 1.4s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══ PASSWORD OVERLAY ═══ */
+/* ══════════════════════════════════════
+   PASSWORD OVERLAY
+══════════════════════════════════════ */
 #pwOverlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(10,7,2,0.88);
-  backdrop-filter: blur(4px);
+  background: rgba(10,25,45,0.9);
+  backdrop-filter: blur(6px);
   z-index: 200;
   align-items: center;
   justify-content: center;
@@ -128,302 +195,416 @@ body {
 #pwOverlay.open { display: flex; }
 
 .pw-box {
-  background: var(--panel);
-  border: 1px solid var(--border-hi);
+  background: var(--white);
+  border: 3px solid var(--ocean);
   border-radius: var(--radius);
   padding: 2.4rem 2.8rem;
-  width: 100%; max-width: 380px;
+  width: 100%; max-width: 360px;
   text-align: center;
-  box-shadow: 0 0 60px rgba(240,180,41,0.12), 0 20px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 8px 8px 0 var(--ocean-deep);
   position: relative;
 }
-.pw-box::before {
-  content: '';
-  position: absolute; inset: 4px;
-  border: 1px solid rgba(107,78,30,0.4);
-  border-radius: 10px;
-  pointer-events: none;
-}
-.pw-box h2 {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 1.5rem; color: var(--gold-hi);
-  margin-bottom: 0.4rem;
-  text-shadow: 0 0 20px rgba(240,180,41,0.3);
-}
+.pw-box-icon { font-size: 2.4rem; margin-bottom: 0.5rem; }
+.pw-box h2 { font-family: 'Pacifico', cursive; font-size: 1.5rem; color: var(--ocean-deep); margin-bottom: 0.4rem; }
 .pw-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.6rem; line-height: 1.5; }
-.pw-error { font-size: 0.78rem; color: var(--danger); margin-top: 0.6rem; min-height: 1.1rem; }
+.pw-error { font-size: 0.78rem; color: var(--coral); margin-top: 0.6rem; min-height: 1.1rem; font-weight: 700; }
 .pw-row { display: flex; gap: 0.5rem; }
 
-/* ═══ MAIN UI ═══ */
-#mainUI { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 720px; }
+/* ══════════════════════════════════════
+   MAIN UI
+══════════════════════════════════════ */
+#mainUI { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 680px; }
 #mainUI.show { display: flex; }
 
-.status-row { display: flex; justify-content: center; margin-bottom: 1.6rem; }
+.status-row { display: flex; justify-content: center; margin-bottom: 1.4rem; }
 
 #adminBadge {
   display: none; align-items: center; gap: 0.5rem;
-  background: rgba(240,180,41,0.1); border: 1px solid var(--gold-dim);
-  border-radius: 99px; padding: 0.3rem 1rem 0.3rem 0.8rem;
-  font-size: 0.75rem; color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 0.06em;
+  background: rgba(255,217,61,0.15); border: 2px solid var(--sun);
+  border-radius: 99px; padding: 0.35rem 1.1rem 0.35rem 0.8rem;
+  font-size: 0.78rem; color: var(--sun); font-weight: 800; letter-spacing: 0.04em;
 }
 #adminBadge.show { display: flex; }
-#adminBadge .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold); }
-#adminBadge button { background: transparent; border: none; color: var(--muted); font-size: 0.7rem; padding: 0; cursor: pointer; margin-left: 0.4rem; font-family: 'Nunito', sans-serif; }
-#adminBadge button:hover { color: var(--cream); }
+#adminBadge .dot { width: 8px; height: 8px; background: var(--sun); border-radius: 50%; box-shadow: 0 0 8px var(--sun); animation: pulse-dot 1.5s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+#adminBadge button { background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 0.72rem; padding: 0; cursor: pointer; margin-left: 0.4rem; font-family: 'Nunito', sans-serif; font-weight: 600; }
+#adminBadge button:hover { color: var(--white); }
 
 #readonlyNotice {
   display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.73rem; color: var(--muted); letter-spacing: 0.06em; font-family: 'Cinzel', serif;
+  font-size: 0.75rem; color: var(--foam-mid); font-weight: 700; letter-spacing: 0.05em; opacity: 0.8;
 }
 #readonlyNotice button {
-  background: transparent; border: none; color: var(--gold-dim); font-size: 0.73rem;
-  padding: 0; cursor: pointer; text-decoration: underline; font-family: 'Cinzel', serif;
+  background: transparent; border: none; color: var(--sun); font-size: 0.75rem;
+  padding: 0; cursor: pointer; text-decoration: underline; font-family: 'Nunito', sans-serif; font-weight: 800;
 }
-#readonlyNotice button:hover { color: var(--gold); }
+#readonlyNotice button:hover { color: var(--white); }
 
-/* ═══ STATS ═══ */
-.stats-bar { display: flex; gap: 0.8rem; margin-bottom: 1.8rem; justify-content: center; flex-wrap: wrap; width: 100%; }
+/* ══════════════════════════════════════
+   STATS
+══════════════════════════════════════ */
+.stats-bar { display: flex; gap: 0.8rem; margin-bottom: 1.6rem; justify-content: center; flex-wrap: wrap; width: 100%; }
 
 .stat {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 0.7rem 1.4rem;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1.4rem;
   text-align: center; flex: 1; min-width: 90px; max-width: 140px;
-  position: relative; overflow: hidden;
-  backdrop-filter: blur(4px);
-}
-.stat::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(240,180,41,0.05) 0%, transparent 60%);
-  pointer-events: none;
-}
-.stat-number { font-family: 'Cinzel Decorative', serif; font-size: 1.7rem; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(240,180,41,0.35); }
-.stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.2rem; font-family: 'Cinzel', serif; }
-
-/* ═══ CYCLE BANNER ═══ */
-.cycle-banner {
-  display: none; background: linear-gradient(135deg, #1a4a2e, #2e8b57);
-  border: 1px solid #3aaa6e; border-radius: var(--radius-sm);
-  padding: 1rem 1.5rem; text-align: center; width: 100%; margin-bottom: 1.2rem;
-  font-size: 0.88rem; color: #c8f0dc;
-}
-.cycle-banner strong { display: block; font-family: 'Cinzel', serif; font-size: 1rem; margin-bottom: 0.25rem; color: #fff; letter-spacing: 0.06em; }
-
-/* ═══ CAPTAIN CARD ═══ */
-.captain-card {
-  width: 100%; background: rgba(46,38,32,0.92);
-  border: 2px solid var(--border); border-radius: var(--radius);
-  text-align: center; margin-bottom: 1rem;
-  position: relative; overflow: hidden; transition: border-color 0.4s;
   backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: transform 0.2s;
 }
-.captain-card::before {
-  content: ''; position: absolute; inset: 3px;
-  border: 1px solid rgba(107,78,30,0.3); border-radius: 11px;
-  pointer-events: none; z-index: 1;
+.stat:hover { transform: translateY(-2px); }
+.stat-number { font-family: 'Pacifico', cursive; font-size: 1.8rem; color: var(--sun); line-height: 1; text-shadow: 2px 2px 0 var(--sun-dark); }
+.stat-label { font-size: 0.65rem; color: var(--foam-mid); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.2rem; font-weight: 700; }
+
+/* ══════════════════════════════════════
+   CYCLE BANNER
+══════════════════════════════════════ */
+.cycle-banner {
+  display: none;
+  background: linear-gradient(135deg, var(--mint-dark), var(--mint));
+  border: 3px solid var(--white);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem;
+  text-align: center; width: 100%; margin-bottom: 1.2rem;
+  font-size: 0.9rem; color: var(--white); font-weight: 700;
+  box-shadow: 4px 4px 0 var(--mint-dark);
 }
-.captain-card-inner { padding: 2rem 2rem 1.6rem; position: relative; z-index: 2; }
-.captain-card::after {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 60%;
-  background: linear-gradient(180deg, rgba(240,180,41,0.06) 0%, transparent 100%);
-  pointer-events: none;
-}
-.captain-card.revealed { border-color: var(--gold); animation: card-glow 2s ease-out; }
-@keyframes card-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(240,180,41,0.5), 0 8px 32px rgba(0,0,0,0.4); }
-  30%  { box-shadow: 0 0 50px 10px rgba(240,180,41,0.22), 0 8px 32px rgba(0,0,0,0.4); }
-  100% { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+.cycle-banner strong { display: block; font-family: 'Pacifico', cursive; font-size: 1.1rem; margin-bottom: 0.25rem; }
+
+/* ══════════════════════════════════════
+   CAPTAIN CARD
+══════════════════════════════════════ */
+.captain-card {
+  width: 100%;
+  background: var(--white);
+  border: 3px solid var(--ocean);
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 6px 6px 0 var(--ocean-deep);
 }
 
-.captain-ornament {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0.6rem; margin-bottom: 0.8rem;
+/* Wave decoration at bottom of card */
+.captain-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 28px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 28'%3E%3Cpath fill='%231a5f8a' fill-opacity='0.12' d='M0,14 C50,0 100,28 150,14 C200,0 250,28 300,14 C350,0 400,28 400,14 L400,28 L0,28 Z'/%3E%3C/svg%3E") bottom/cover no-repeat;
+  pointer-events: none;
 }
-.captain-ornament span { font-size: 0.65rem; font-family: 'Cinzel', serif; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); }
-.captain-crown { font-size: 1.1rem; }
+
+.captain-card.revealed {
+  border-color: var(--sun);
+  box-shadow: 6px 6px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.3);
+  animation: card-bounce 0.5s cubic-bezier(0.36,0.07,0.19,0.97);
+}
+@keyframes card-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.03); }
+  60%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+.captain-card-inner { padding: 2rem 2rem 2.4rem; }
+
+.captain-flag {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  animation: flag-wave 2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes flag-wave {
+  0%,100% { transform: rotate(-5deg); }
+  50%      { transform: rotate(5deg); }
+}
+
+.captain-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
 
 .captain-name {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.8rem, 6vw, 3rem); color: var(--gold-hi);
-  letter-spacing: 0.03em; line-height: 1.1;
-  text-shadow: 0 0 30px rgba(240,180,41,0.3);
-  min-height: 3.5rem; display: flex; align-items: center; justify-content: center;
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  color: var(--ocean-deep);
+  line-height: 1.15;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.captain-name.empty { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--muted); font-weight: 400; letter-spacing: 0.1em; }
+.captain-name.empty {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-style: italic;
+}
 
 .action-row { display: flex; gap: 0.6rem; margin-top: 1.4rem; justify-content: center; flex-wrap: wrap; }
-.saving-indicator { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 1.1rem; margin-bottom: 0.5rem; font-family: 'Cinzel', serif; letter-spacing: 0.06em; }
+.saving-indicator { font-size: 0.72rem; color: var(--foam-mid); text-align: center; min-height: 1.1rem; margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.04em; }
 
-/* ═══ BUTTONS ═══ */
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
 button {
-  font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700;
-  border: none; border-radius: var(--radius-sm); padding: 0.6rem 1.2rem;
-  cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em;
+  font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 800;
+  border: none; border-radius: var(--radius-xs); padding: 0.6rem 1.2rem;
+  cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em;
 }
-button:active { transform: scale(0.96); }
-button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+button:active { transform: scale(0.95) translateY(2px); }
+button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
 .btn-primary {
-  background: linear-gradient(135deg, #d4960f 0%, #f0b429 50%, #e8a820 100%);
-  color: #1a1208; border: 1px solid var(--gold-hi);
-  box-shadow: 0 2px 12px rgba(240,180,41,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-  font-family: 'Cinzel', serif; letter-spacing: 0.06em; font-size: 0.82rem;
+  background: var(--sun);
+  color: var(--navy);
+  border: 2px solid var(--sun-dark);
+  box-shadow: 0 4px 0 var(--sun-dark);
 }
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e8a820 0%, #ffd966 50%, #f0b429 100%);
-  box-shadow: 0 4px 20px rgba(240,180,41,0.45); transform: translateY(-1px);
+  background: #ffe066;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--sun-dark);
 }
 
 .btn-skip {
-  background: transparent; color: var(--gold); border: 1px solid var(--border);
-  font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.04em;
+  background: var(--foam);
+  color: var(--ocean-deep);
+  border: 2px solid var(--foam-mid);
+  box-shadow: 0 3px 0 var(--foam-mid);
+  font-size: 0.78rem;
 }
-.btn-skip:hover:not(:disabled) { border-color: var(--gold-dim); background: rgba(240,180,41,0.06); }
+.btn-skip:hover:not(:disabled) {
+  background: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--foam-mid);
+}
 
 .btn-done {
-  background: linear-gradient(135deg, #1e6b40, #2e8b57); color: #c8f0dc;
-  border: 1px solid #3aaa6e; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.05em;
+  background: var(--mint);
+  color: var(--white);
+  border: 2px solid var(--mint-dark);
+  box-shadow: 0 4px 0 var(--mint-dark);
 }
-.btn-done:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.btn-done:hover:not(:disabled) {
+  background: #5ee5dc;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--mint-dark);
+}
 
 .btn-restore {
-  background: transparent; color: #a0c4ff; border: 1px solid rgba(100,150,220,0.35);
-  font-size: 0.72rem; padding: 0.3rem 0.7rem; font-family: 'Cinzel', serif; letter-spacing: 0.04em;
+  background: var(--foam);
+  color: var(--ocean);
+  border: 2px solid var(--ocean-light);
+  font-size: 0.72rem; padding: 0.3rem 0.7rem;
+  box-shadow: 0 2px 0 var(--ocean);
 }
-.btn-restore:hover:not(:disabled) { border-color: #a0c4ff; background: rgba(100,150,220,0.08); }
+.btn-restore:hover:not(:disabled) {
+  background: var(--foam-mid);
+  transform: translateY(-1px);
+}
 
 .btn-danger {
-  background: transparent; color: #e07070; border: 1px solid rgba(192,57,43,0.35);
+  background: transparent;
+  color: var(--coral-dark);
+  border: 2px solid var(--coral);
   font-size: 0.75rem; padding: 0.4rem 0.9rem;
 }
-.btn-danger:hover:not(:disabled) { border-color: var(--danger); background: rgba(192,57,43,0.06); }
-
-/* ═══ TABS ═══ */
-.tabs-wrapper { width: 100%; margin-top: 0.5rem; }
-.tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
-.tab {
-  padding: 0.6rem 1.2rem; border-radius: 0; font-size: 0.73rem; font-weight: 700;
-  cursor: pointer; border: none; border-bottom: 2px solid transparent;
-  background: transparent; color: var(--muted); letter-spacing: 0.08em;
-  text-transform: uppercase; font-family: 'Cinzel', serif; transition: color 0.15s;
-  margin-bottom: -1px;
+.btn-danger:hover:not(:disabled) {
+  background: var(--coral);
+  color: var(--white);
 }
-.tab:hover { color: var(--gold-dim); }
-.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ══════════════════════════════════════
+   TABS + PANELS
+══════════════════════════════════════ */
+.tabs-wrapper { width: 100%; margin-top: 0.5rem; }
+
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.75rem; font-weight: 800;
+  cursor: pointer; border: none;
+  background: transparent; color: var(--foam-mid);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  transition: all 0.15s;
+}
+.tab:hover { color: var(--white); }
+.tab.active {
+  background: var(--white);
+  color: var(--ocean-deep);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* ═══ SECTION TITLES ═══ */
+/* ══════════════════════════════════════
+   SECTION TITLES
+══════════════════════════════════════ */
 .section-title {
-  font-family: 'Cinzel', serif; font-size: 0.65rem; text-transform: uppercase;
-  letter-spacing: 0.15em; color: var(--gold-dim); margin: 1.6rem 0 0.7rem; padding: 0 0.2rem;
-  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--foam-mid); margin: 1.4rem 0 0.6rem; padding: 0 0.2rem;
+  display: flex; align-items: center; gap: 0.5rem; font-weight: 800;
 }
-.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
+.section-title::before { content: '🐚'; font-size: 0.8rem; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
 
-/* ═══ LISTS ═══ */
+/* ══════════════════════════════════════
+   LISTS
+══════════════════════════════════════ */
 .list-box {
-  background: rgba(46,38,32,0.85); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); overflow: hidden; backdrop-filter: blur(4px);
+  background: var(--white);
+  border: 2px solid var(--foam-mid);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
 }
+
 .list-item {
-  display: flex; align-items: center; padding: 0.6rem 1rem;
-  border-bottom: 1px solid rgba(107,78,30,0.2); font-size: 0.88rem;
-  gap: 0.7rem; transition: background 0.1s;
+  display: flex; align-items: center;
+  padding: 0.65rem 1rem;
+  border-bottom: 2px dashed var(--foam-mid);
+  font-size: 0.88rem; gap: 0.7rem;
+  transition: background 0.1s; color: var(--navy);
+  font-weight: 600;
 }
-.list-item:hover { background: rgba(240,180,41,0.04); }
+.list-item:hover { background: var(--foam); }
 .list-item:last-child { border-bottom: none; }
-.list-num { font-size: 0.65rem; color: var(--muted); min-width: 22px; text-align: right; font-family: 'Cinzel', serif; }
+.list-num { font-size: 0.65rem; color: var(--muted); min-width: 22px; text-align: right; font-weight: 800; }
 .list-name { flex: 1; }
 .list-item.done-item .list-name { color: var(--muted); }
 
 .badge {
-  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 0.18rem 0.5rem; border-radius: 99px; font-weight: 700; font-family: 'Cinzel', serif;
+  font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.2rem 0.55rem; border-radius: 99px; font-weight: 800;
 }
-.badge-done    { background: rgba(46,139,87,0.15);  color: #3aaa6e;        border: 1px solid rgba(46,139,87,0.3); }
-.badge-skipped { background: rgba(180,100,30,0.15); color: #d4843a;        border: 1px solid rgba(180,100,30,0.3); }
-.badge-queued  { background: rgba(240,180,41,0.08); color: var(--gold-dim); border: 1px solid rgba(240,180,41,0.2); }
+.badge-done    { background: #d4f5e8; color: #1a7a4a; border: 2px solid #a8e6c8; }
+.badge-skipped { background: #fde8d8; color: #c05a1a; border: 2px solid #f5c4a0; }
+.badge-queued  { background: var(--foam); color: var(--ocean); border: 2px solid var(--foam-mid); }
 
 .empty-state {
   padding: 2rem 1rem; text-align: center; color: var(--muted);
-  font-size: 0.82rem; font-family: 'Cinzel', serif; letter-spacing: 0.06em;
+  font-size: 0.85rem; font-weight: 700; font-style: italic;
 }
+.empty-state::before { content: '🌊 '; }
 
-/* ═══ MANAGE PANEL ═══ */
+/* ══════════════════════════════════════
+   MANAGE PANEL
+══════════════════════════════════════ */
 .add-form { display: flex; gap: 0.6rem; width: 100%; margin-top: 0.5rem; }
 .manage-row { display: flex; gap: 0.6rem; margin-top: 1.2rem; justify-content: flex-end; flex-wrap: wrap; }
 
 input[type="text"], input[type="password"], input[type="url"] {
-  flex: 1; background: var(--panel2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--cream); font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem; padding: 0.6rem 0.9rem; outline: none; transition: border-color 0.2s;
+  flex: 1; background: var(--white); border: 2px solid var(--foam-mid);
+  border-radius: var(--radius-xs); color: var(--navy);
+  font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 600;
+  padding: 0.6rem 0.9rem; outline: none; transition: border-color 0.2s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
-input:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 2px rgba(240,180,41,0.08); }
-input::placeholder { color: var(--muted); }
+input:focus { border-color: var(--ocean-light); box-shadow: 0 0 0 3px rgba(42,139,192,0.15); }
+input::placeholder { color: var(--muted); font-style: italic; }
 
 .change-pw-box {
-  background: var(--panel2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 1rem 1.2rem; margin-top: 0.5rem;
+  background: var(--white); border: 2px solid var(--foam-mid);
+  border-radius: var(--radius-xs); padding: 1rem 1.2rem; margin-top: 0.5rem;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.08);
 }
 
-/* ═══ CORNER ORNAMENTS ═══ */
-.corner-ornament { position: absolute; width: 20px; height: 20px; border-color: var(--border-hi); border-style: solid; opacity: 0.5; }
-.corner-ornament.tl { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
-.corner-ornament.tr { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
-.corner-ornament.bl { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
-.corner-ornament.br { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
-
-/* ═══ LOCK BTN ═══ */
+/* ══════════════════════════════════════
+   LOCK BUTTON
+══════════════════════════════════════ */
 #lockBtn {
   position: fixed; bottom: 1.4rem; right: 1.4rem;
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 99px; color: var(--muted); font-size: 0.7rem;
-  padding: 0.45rem 1rem; cursor: pointer; letter-spacing: 0.08em;
-  z-index: 50; font-family: 'Cinzel', serif; transition: all 0.2s;
-  backdrop-filter: blur(4px);
+  background: var(--white); border: 2px solid var(--ocean);
+  border-radius: 99px; color: var(--ocean-deep); font-size: 0.72rem; font-weight: 800;
+  padding: 0.5rem 1.1rem; cursor: pointer; letter-spacing: 0.05em;
+  z-index: 50; box-shadow: 3px 3px 0 var(--ocean-deep);
+  transition: all 0.15s;
 }
-#lockBtn:hover { color: var(--gold); border-color: var(--gold-dim); }
+#lockBtn:hover {
+  background: var(--ocean); color: var(--white);
+  transform: translateY(-2px);
+  box-shadow: 3px 5px 0 var(--ocean-deep);
+}
 
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
 footer {
-  margin-top: 3rem; font-size: 0.68rem; color: var(--muted);
-  text-align: center; letter-spacing: 0.1em; font-family: 'Cinzel', serif; opacity: 0.6;
+  margin-top: 3rem; font-size: 0.7rem; color: var(--foam-mid);
+  text-align: center; letter-spacing: 0.08em; font-weight: 700; opacity: 0.7;
 }
 </style>
 </head>
 <body>
 
+<!-- Floating bubbles (decorative) -->
+<div class="bubble" style="left:8%;width:18px;height:18px;animation-duration:12s;animation-delay:0s;"></div>
+<div class="bubble" style="left:20%;width:10px;height:10px;animation-duration:9s;animation-delay:2s;"></div>
+<div class="bubble" style="left:55%;width:22px;height:22px;animation-duration:15s;animation-delay:4s;"></div>
+<div class="bubble" style="left:75%;width:12px;height:12px;animation-duration:10s;animation-delay:1s;"></div>
+<div class="bubble" style="left:88%;width:16px;height:16px;animation-duration:13s;animation-delay:6s;"></div>
+<div class="bubble" style="left:35%;width:8px;height:8px;animation-duration:8s;animation-delay:3s;"></div>
+<!-- Sparkles -->
+<div class="sparkle" style="left:15%;top:30%;animation-duration:2.5s;animation-delay:0s;"></div>
+<div class="sparkle" style="left:80%;top:20%;animation-duration:3s;animation-delay:1s;"></div>
+<div class="sparkle" style="left:50%;top:50%;animation-duration:2s;animation-delay:0.5s;"></div>
+<div class="sparkle" style="left:65%;top:70%;animation-duration:3.5s;animation-delay:2s;"></div>
+
 <!-- Password overlay -->
 <div id="pwOverlay">
   <div class="pw-box">
-    <div class="corner-ornament tl"></div><div class="corner-ornament tr"></div>
-    <div class="corner-ornament bl"></div><div class="corner-ornament br"></div>
-    <h2>⚔ Admin Access</h2>
-    <p>Enter the admin password to manage the guild rotation.</p>
+    <div class="pw-box-icon">⚓</div>
+    <h2>Ahoy, Captain!</h2>
+    <p>Enter the secret password to manage the crew rotation.</p>
     <div class="pw-row">
       <input type="password" id="pwInput" placeholder="Password…" onkeydown="if(event.key==='Enter')submitPassword()" />
       <button class="btn-primary" onclick="submitPassword()">Enter</button>
     </div>
     <div class="pw-error" id="pwError"></div>
-    <button style="margin-top:1.2rem;background:transparent;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;text-decoration:underline;font-family:'Cinzel',serif;letter-spacing:0.05em;" onclick="closeOverlay()">Cancel</button>
+    <button style="margin-top:1.2rem;background:transparent;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;text-decoration:underline;font-family:'Nunito',sans-serif;font-weight:700;" onclick="closeOverlay()">Never mind!</button>
   </div>
 </div>
 
 <!-- Header -->
 <header class="site-header">
-  <div class="header-deco">
-    <div class="deco-line"></div>
-    <div class="deco-diamond"></div>
-    <div class="deco-line"></div>
-  </div>
-  <div class="site-title">NullZero Captain Tracker</div>
-  <div class="site-tagline">CapybaraGo Captain Rotations</div>
+  <div class="header-ship">⛵</div>
+  <div class="site-title">NullZero</div>
+  <div class="site-tagline">🌊 Captain Tracker 🌊</div>
 </header>
+
+<div class="rope-divider">
+  <div class="rope-line"></div>
+  <span class="rope-knot">⚓</span>
+  <div class="rope-line"></div>
+</div>
 
 <!-- Loading -->
 <div id="loadingScreen">
-  <div class="spinner"></div>
-  <span>Summoning guild data…</span>
+  <div class="spinner">🌀</div>
+  <span>Sailing to your guild…</span>
 </div>
 
 <!-- Main UI -->
@@ -432,68 +613,63 @@ footer {
   <div class="status-row">
     <div id="adminBadge">
       <span class="dot"></span>
-      Guild Master
-      <button onclick="logout()">Log out</button>
+      ⚓ Captain Mode
+      <button onclick="logout()">Go ashore</button>
     </div>
     <div id="readonlyNotice">
-      <span>⚔</span> Viewing &nbsp;·&nbsp; <button onclick="openOverlay()">Guild Master Login</button>
+      🔭 Viewing only &nbsp;·&nbsp; <button onclick="openOverlay()">Captain login</button>
     </div>
   </div>
 
   <div class="stats-bar" id="statsBar"></div>
 
   <div class="cycle-banner" id="cycleBanner">
-    <strong>⚔ Cycle Complete!</strong>
-    All guild members have led. Starting a new cycle.
+    <strong>🎉 All Hands Have Sailed! 🎉</strong>
+    Every crew member has led. Starting a new voyage!
   </div>
 
+  <!-- Captain Card -->
   <div class="captain-card" id="captainCard">
-    <div class="corner-ornament tl"></div><div class="corner-ornament tr"></div>
-    <div class="corner-ornament bl"></div><div class="corner-ornament br"></div>
     <div class="captain-card-inner">
-      <div class="captain-ornament">
-        <div class="deco-line" style="max-width:60px;"></div>
-        <span class="captain-crown">👑</span>
-        <span>Captain of the Day</span>
-        <span class="captain-crown">👑</span>
-        <div class="deco-line" style="max-width:60px;"></div>
-      </div>
-      <div class="captain-name empty" id="captainName">No captain selected yet</div>
+      <div class="captain-flag">🏴‍☠️</div>
+      <div class="captain-label">⚓ Captain of the Day ⚓</div>
+      <div class="captain-name empty" id="captainName">No captain yet, mate!</div>
       <div class="action-row" id="actionRow"></div>
     </div>
   </div>
 
   <div class="saving-indicator" id="savingIndicator"></div>
 
+  <!-- Tabs -->
   <div class="tabs-wrapper">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('remaining',event)">Remaining</button>
-      <button class="tab" onclick="switchTab('done',event)">Completed</button>
-      <button class="tab" id="manageTab" onclick="switchTab('manage',event)" style="display:none;">Manage Guild</button>
+      <button class="tab active" onclick="switchTab('remaining',event)">🗺 Remaining</button>
+      <button class="tab" onclick="switchTab('done',event)">✅ Completed</button>
+      <button class="tab" id="manageTab" onclick="switchTab('manage',event)" style="display:none;">⚙ Manage Crew</button>
     </div>
 
     <div class="panel active" id="panel-remaining">
-      <div class="section-title">Remaining this cycle</div>
+      <div class="section-title">Remaining this voyage</div>
       <div class="list-box" id="remainingList"></div>
     </div>
 
     <div class="panel" id="panel-done">
-      <div class="section-title">Completed this cycle</div>
+      <div class="section-title">Completed this voyage</div>
       <div class="list-box" id="doneList"></div>
     </div>
 
     <div class="panel" id="panel-manage">
-      <div class="section-title">Add member</div>
+      <div class="section-title">Add crew member</div>
       <div class="add-form">
-        <input type="text" id="newNameInput" placeholder="Player name…" onkeydown="if(event.key==='Enter')addPerson()" />
-        <button class="btn-primary" onclick="addPerson()">Add</button>
+        <input type="text" id="newNameInput" placeholder="Crew member name…" onkeydown="if(event.key==='Enter')addPerson()" />
+        <button class="btn-primary" onclick="addPerson()">+ Add</button>
       </div>
 
-      <div class="section-title" style="margin-top:1.5rem;">All members</div>
+      <div class="section-title" style="margin-top:1.5rem;">All crew</div>
       <div class="list-box" id="manageList"></div>
       <div class="manage-row">
-        <button class="btn-danger" onclick="resetCycle()">Reset cycle</button>
-        <button class="btn-danger" onclick="clearAll()">Remove all</button>
+        <button class="btn-danger" onclick="resetCycle()">🔄 Reset voyage</button>
+        <button class="btn-danger" onclick="clearAll()">🗑 Remove all</button>
       </div>
 
       <div class="section-title" style="margin-top:2rem;">Change password</div>
@@ -502,18 +678,18 @@ footer {
           <input type="password" id="newPw1" placeholder="New password…" style="flex:none;width:100%;" />
           <input type="password" id="newPw2" placeholder="Confirm new password…" style="flex:none;width:100%;" />
           <div style="display:flex;justify-content:flex-end;margin-top:0.4rem;">
-            <button class="btn-primary" onclick="changePassword()">Update Password</button>
+            <button class="btn-done" onclick="changePassword()">Update Password</button>
           </div>
-          <div id="pwChangeMsg" style="font-size:0.75rem;min-height:1rem;text-align:right;font-family:'Cinzel',serif;letter-spacing:0.04em;"></div>
+          <div id="pwChangeMsg" style="font-size:0.75rem;min-height:1rem;text-align:right;font-weight:700;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <footer>⚔ &nbsp; Live guild data &nbsp; · &nbsp; All members see the same captain &nbsp; ⚔</footer>
+  <footer>⛵ &nbsp; Live crew data · All guild members see the same captain &nbsp; ⛵</footer>
 </div>
 
-<button id="lockBtn" onclick="openOverlay()" style="display:none;">🔒 Guild Master</button>
+<button id="lockBtn" onclick="openOverlay()" style="display:none;">⚓ Captain Login</button>
 
 <script>
 const SUPABASE_URL = 'https://ypimsubvdyebewxzlorr.supabase.co';
@@ -522,9 +698,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let supabaseClient = null;
 let state = null;
 let isAdmin = false;
-
-// ── state shape:
-// { team: [], remaining: [], done: [{name, status:'done'|'skipped'}], current: null, adminPw: '' }
 
 async function init() {
   await startApp(SUPABASE_URL, SUPABASE_KEY);
@@ -535,7 +708,7 @@ async function startApp(url, key) {
   const { data, error } = await supabaseClient.from('guild_state').select('data').eq('id', 'main').single();
   if (error) {
     document.getElementById('loadingScreen').innerHTML =
-      `<div style="color:var(--danger);font-family:'Cinzel',serif;font-size:0.85rem;text-align:center;max-width:320px;">Connection failed.<br><span style="color:var(--muted);font-size:0.75rem;">${error.message}</span></div>`;
+      `<div style="color:#ff6b6b;font-size:0.9rem;text-align:center;font-weight:700;">⚠️ Connection failed<br><span style="color:var(--foam-mid);font-size:0.75rem;">${error.message}</span></div>`;
     return;
   }
   state = migrateDone(data.data);
@@ -554,7 +727,6 @@ async function startApp(url, key) {
   render();
 }
 
-// migrate old flat-string done array to object form {name, status}
 function migrateDone(s) {
   if (!s) return s;
   s.done = (s.done || []).map(d => typeof d === 'string' ? { name: d, status: 'done' } : d);
@@ -569,10 +741,9 @@ async function saveState() {
 }
 
 function setSaving(on) {
-  document.getElementById('savingIndicator').textContent = on ? '— Saving… —' : '';
+  document.getElementById('savingIndicator').textContent = on ? '🌊 Saving…' : '';
 }
 
-// ── auth ──
 function openOverlay() {
   document.getElementById('pwInput').value = '';
   document.getElementById('pwError').textContent = '';
@@ -586,7 +757,7 @@ function submitPassword() {
   if (val === (state.adminPw || 'captain123')) {
     isAdmin = true; closeOverlay(); render();
   } else {
-    document.getElementById('pwError').textContent = 'Incorrect password.';
+    document.getElementById('pwError').textContent = '🚫 Wrong password, landlubber!';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
   }
@@ -605,18 +776,17 @@ async function changePassword() {
   const p1 = document.getElementById('newPw1').value.trim();
   const p2 = document.getElementById('newPw2').value.trim();
   const msg = document.getElementById('pwChangeMsg');
-  if (!p1) { msg.style.color = 'var(--danger)'; msg.textContent = 'Password cannot be empty.'; return; }
-  if (p1 !== p2) { msg.style.color = 'var(--danger)'; msg.textContent = 'Passwords do not match.'; return; }
+  if (!p1) { msg.style.color = 'var(--coral)'; msg.textContent = 'Password cannot be empty!'; return; }
+  if (p1 !== p2) { msg.style.color = 'var(--coral)'; msg.textContent = "Passwords don't match!"; return; }
   state.adminPw = p1;
   await saveState();
   document.getElementById('newPw1').value = '';
   document.getElementById('newPw2').value = '';
-  msg.style.color = 'var(--success)';
-  msg.textContent = 'Password updated.';
+  msg.style.color = 'var(--mint-dark)';
+  msg.textContent = '✓ Password updated!';
   setTimeout(() => msg.textContent = '', 3000);
 }
 
-// ── helpers ──
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -630,7 +800,6 @@ function sortAlpha(arr) {
   return [...arr].sort((a, b) => a.localeCompare(b));
 }
 
-// ── captain logic ──
 async function pickCaptain() {
   if (!isAdmin) return;
   if (state.remaining.length === 0) {
@@ -673,7 +842,6 @@ async function skipToDone() {
   await saveState(); render();
 }
 
-// ── send a completed person back to remaining ──
 async function restoreToRemaining(name) {
   if (!isAdmin) return;
   state.done = state.done.filter(d => d.name !== name);
@@ -694,7 +862,7 @@ async function addPerson() {
 
 async function removePerson(name) {
   if (!isAdmin) return;
-  if (!confirm('Remove ' + name + ' from the guild?')) return;
+  if (!confirm('Remove ' + name + ' from the crew?')) return;
   state.team = state.team.filter(n => n !== name);
   state.remaining = state.remaining.filter(n => n !== name);
   state.done = state.done.filter(d => d.name !== name);
@@ -704,7 +872,7 @@ async function removePerson(name) {
 
 async function resetCycle() {
   if (!isAdmin) return;
-  if (!confirm('Reset the cycle? Everyone goes back into the pool.')) return;
+  if (!confirm('Reset the voyage? Everyone sails again!')) return;
   state.remaining = shuffle(state.team);
   state.done = []; state.current = null;
   await saveState(); render();
@@ -712,7 +880,7 @@ async function resetCycle() {
 
 async function clearAll() {
   if (!isAdmin) return;
-  if (!confirm('Remove ALL members? This cannot be undone.')) return;
+  if (!confirm('Remove ALL crew members? This cannot be undone!')) return;
   state.team = []; state.remaining = []; state.done = []; state.current = null;
   await saveState(); render();
 }
@@ -724,7 +892,6 @@ function switchTab(tab, e) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
-// ── render ──
 function render() {
   if (!state) return;
 
@@ -741,9 +908,9 @@ function render() {
   }
 
   document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><div class="stat-number">${state.remaining.length}</div><div class="stat-label">Remaining</div></div>
-    <div class="stat"><div class="stat-number">${state.done.length}</div><div class="stat-label">Completed</div></div>
-    <div class="stat"><div class="stat-number">${state.team.length}</div><div class="stat-label">Members</div></div>
+    <div class="stat"><div class="stat-number">${state.remaining.length}</div><div class="stat-label">🗺 Remaining</div></div>
+    <div class="stat"><div class="stat-number">${state.done.length}</div><div class="stat-label">✅ Completed</div></div>
+    <div class="stat"><div class="stat-number">${state.team.length}</div><div class="stat-label">👥 Crew</div></div>
   `;
 
   const nameEl = document.getElementById('captainName');
@@ -753,38 +920,35 @@ function render() {
     nameEl.textContent = state.current;
     nameEl.classList.remove('empty');
     actionRow.innerHTML = isAdmin ? `
-      <button class="btn-done" onclick="markDone()">✓ Confirm Captain</button>
-      <button class="btn-skip" onclick="skipBack()">Skip · Reshuffle Back In</button>
-      <button class="btn-skip" onclick="skipToDone()" style="font-size:0.72rem;">Skip · Remove from Cycle</button>
+      <button class="btn-done" onclick="markDone()">⚓ Confirm Captain!</button>
+      <button class="btn-skip" onclick="skipBack()">↩ Reshuffle back in</button>
+      <button class="btn-skip" onclick="skipToDone()" style="font-size:0.72rem;">🚫 Skip this voyage</button>
     ` : '';
   } else if (state.lastCaptain) {
     nameEl.textContent = state.lastCaptain;
     nameEl.classList.remove('empty');
-    document.querySelector('.captain-ornament span').textContent = 'Captain of the Day';
     actionRow.innerHTML = isAdmin
-      ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>⚔ Pick Next Captain</button>`
+      ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>⛵ Pick Next Captain</button>`
       : '';
   } else {
-    nameEl.textContent = state.team.length === 0 ? 'No members added yet' : 'No captain selected yet';
+    nameEl.textContent = state.team.length === 0 ? 'No crew aboard yet!' : 'No captain yet, mate!';
     nameEl.classList.add('empty');
     actionRow.innerHTML = isAdmin
-      ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>⚔ Pick Captain</button>`
+      ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>⛵ Pick Captain</button>`
       : '';
   }
 
-  // Remaining — sorted alphabetically
   const remainingList = document.getElementById('remainingList');
   const sortedRemaining = sortAlpha(state.remaining);
   remainingList.innerHTML = sortedRemaining.length === 0
-    ? '<div class="empty-state">No members remaining in this cycle.</div>'
+    ? '<div class="empty-state">No crew remaining this voyage.</div>'
     : sortedRemaining.map((n, i) =>
         `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span></div>`
       ).join('');
 
-  // Done — show status badge + restore button for admins
   const doneList = document.getElementById('doneList');
   doneList.innerHTML = state.done.length === 0
-    ? '<div class="empty-state">No one completed yet this cycle.</div>'
+    ? '<div class="empty-state">No one completed yet this voyage.</div>'
     : state.done.map((d, i) => {
         const badge = d.status === 'skipped'
           ? `<span class="badge badge-skipped">Skipped</span>`
@@ -795,22 +959,20 @@ function render() {
         return `<div class="list-item done-item">
           <span class="list-num">${i+1}</span>
           <span class="list-name">${d.name}</span>
-          ${badge}
-          ${restoreBtn}
+          ${badge}${restoreBtn}
         </div>`;
       }).join('');
 
-  // Manage — sorted alphabetically
   if (isAdmin) {
     const manageList = document.getElementById('manageList');
     const sortedTeam = sortAlpha(state.team);
     manageList.innerHTML = sortedTeam.length === 0
-      ? '<div class="empty-state">No members yet. Add some above.</div>'
+      ? '<div class="empty-state">No crew yet. Add some above!</div>'
       : sortedTeam.map(n => {
           const isCurrent = state.current === n;
           const inDone = state.done.find(d => d.name === n);
           let badge = '';
-          if (isCurrent) badge = `<span class="badge" style="background:rgba(240,180,41,0.12);color:var(--gold);border:1px solid rgba(240,180,41,0.25);">Today</span>`;
+          if (isCurrent) badge = `<span class="badge" style="background:#fff8d4;color:#8a6000;border:2px solid #f5d43a;">Today ⚓</span>`;
           else if (inDone) badge = inDone.status === 'skipped'
             ? `<span class="badge badge-skipped">Skipped</span>`
             : `<span class="badge badge-done">Done</span>`;
