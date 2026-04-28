@@ -430,6 +430,70 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   transform: translateY(-1px);
 }
 
+.btn-cancel {
+  background: transparent;
+  color: var(--muted);
+  border: 2px solid var(--foam-mid);
+  font-size: 0.75rem; padding: 0.4rem 0.9rem;
+}
+.btn-cancel:hover:not(:disabled) {
+  background: var(--foam);
+  color: var(--ocean-deep);
+}
+
+.btn-set-captain {
+  background: var(--sun);
+  color: var(--navy);
+  border: 2px solid var(--sun-dark);
+  font-size: 0.78rem; padding: 0.28rem 0.6rem;
+  box-shadow: 0 2px 0 var(--sun-dark);
+  flex-shrink: 0;
+  title: "Set as Captain";
+}
+.btn-set-captain:hover:not(:disabled) {
+  background: #ffe066;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--sun-dark);
+}
+
+.btn-skull {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid #bbb;
+  font-size: 0.78rem; padding: 0.28rem 0.55rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.btn-skull:hover:not(:disabled) {
+  border-color: var(--coral);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.btn-skull-max {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+.btn-skull-max:hover { transform: none !important; }
+
+.skull-row {
+  font-size: 0.72rem;
+  margin-left: 0.4rem;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.skull-clickable {
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.1s, opacity 0.1s;
+  opacity: 0.85;
+}
+.skull-clickable:hover {
+  transform: scale(1.3);
+  opacity: 1;
+  filter: sepia(1) saturate(3) hue-rotate(300deg);
+}
+
 .btn-danger {
   background: transparent;
   color: var(--coral-dark);
@@ -851,6 +915,8 @@ async function pickCaptain() {
   }
   if (state.remaining.length === 0) { render(); return; }
   const idx = Math.floor(Math.random() * state.remaining.length);
+  // save undo snapshot before mutating
+  state.previousCaptain = state.lastCaptain || null;
   state.current = state.remaining.splice(idx, 1)[0];
   state.lastCaptain = null;
   await saveState(); render();
@@ -858,6 +924,17 @@ async function pickCaptain() {
   card.classList.remove('revealed');
   void card.offsetWidth;
   card.classList.add('revealed');
+}
+
+async function cancelPick() {
+  if (!isAdmin || !state.current) return;
+  // put the current pick back into remaining
+  state.remaining = sortAlpha([...state.remaining, state.current]);
+  state.current = null;
+  // restore whoever was captain before this pick
+  state.lastCaptain = state.previousCaptain || null;
+  state.previousCaptain = null;
+  await saveState(); render();
 }
 
 async function skipBack() {
@@ -939,6 +1016,41 @@ async function moveToCompleted(name) {
   await saveState(); render();
 }
 
+async function setAsCaptain(name) {
+  if (!isAdmin) return;
+  // if someone is currently a pending pick, put them back in remaining
+  if (state.current) {
+    state.remaining = sortAlpha([...state.remaining, state.current]);
+  }
+  // remove the chosen person from remaining
+  state.remaining = state.remaining.filter(n => n !== name);
+  state.previousCaptain = state.lastCaptain || null;
+  state.lastCaptain = null;
+  state.current = name;
+  await saveState(); render();
+  const card = document.getElementById('captainCard');
+  card.classList.remove('revealed');
+  void card.offsetWidth;
+  card.classList.add('revealed');
+}
+
+async function addSkull(name) {
+  if (!isAdmin) return;
+  if (!state.skulls) state.skulls = {};
+  const current = state.skulls[name] || 0;
+  if (current >= 3) return;
+  state.skulls[name] = current + 1;
+  await saveState(); render();
+}
+
+async function removeSkull(name) {
+  if (!isAdmin) return;
+  if (!state.skulls || !state.skulls[name]) return;
+  state.skulls[name] = Math.max(0, state.skulls[name] - 1);
+  if (state.skulls[name] === 0) delete state.skulls[name];
+  await saveState(); render();
+}
+
 function render() {
   if (!state) return;
 
@@ -970,6 +1082,7 @@ function render() {
       <button class="btn-done" onclick="markDone()">⚓ Confirm Captain!</button>
       <button class="btn-skip" onclick="skipBack()">↩ Reshuffle back in</button>
       <button class="btn-skip" onclick="skipToDone()" style="font-size:0.72rem;">🚫 Skip this voyage</button>
+      <button class="btn-cancel" onclick="cancelPick()">✕ Cancel</button>
     ` : '';
   } else if (state.lastCaptain) {
     nameEl.textContent = state.lastCaptain;
@@ -990,10 +1103,20 @@ function render() {
   remainingList.innerHTML = sortedRemaining.length === 0
     ? '<div class="empty-state">No crew remaining this voyage.</div>'
     : sortedRemaining.map((n, i) => {
-        const moveBtn = isAdmin
-          ? `<button class="btn-move-done" onclick="moveToCompleted('${n.replace(/'/g,"\\'")}')">✓ Done</button>`
-          : '';
-        return `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span>${moveBtn}</div>`;
+        const skullCount = (state.skulls && state.skulls[n]) || 0;
+        const skullHtml = isAdmin
+          ? Array.from({length: skullCount}, () => `<span class="skull-clickable" onclick="removeSkull('${n.replace(/'/g,"\\'")}')">💀</span>`).join('')
+          : '💀'.repeat(skullCount);
+        const adminBtns = isAdmin ? `
+          <button class="btn-set-captain" onclick="setAsCaptain('${n.replace(/'/g,"\\'")}')">⚓</button>
+          <button class="btn-move-done" onclick="moveToCompleted('${n.replace(/'/g,"\\'")}')">✓</button>
+          <button class="btn-skull ${skullCount >= 3 ? 'btn-skull-max' : ''}" onclick="addSkull('${n.replace(/'/g,"\\'")}')">💀</button>
+        ` : '';
+        return `<div class="list-item">
+          <span class="list-num">${i+1}</span>
+          <span class="list-name">${n}${skullCount ? `<span class="skull-row">${skullHtml}</span>` : ''}</span>
+          ${adminBtns}
+        </div>`;
       }).join('');
 
   const doneList = document.getElementById('doneList');
@@ -1006,9 +1129,13 @@ function render() {
         const restoreBtn = isAdmin
           ? `<button class="btn-restore" onclick="restoreToRemaining('${d.name.replace(/'/g,"\\'")}')">↩ Restore</button>`
           : '';
+        const skullCount2 = (state.skulls && state.skulls[d.name]) || 0;
+        const skullHtml2 = isAdmin
+          ? Array.from({length: skullCount2}, () => `<span class="skull-clickable" onclick="removeSkull('${d.name.replace(/'/g,"\\'")}')">💀</span>`).join('')
+          : '💀'.repeat(skullCount2);
         return `<div class="list-item done-item">
           <span class="list-num">${i+1}</span>
-          <span class="list-name">${d.name}</span>
+          <span class="list-name">${d.name}${skullCount2 ? `<span class="skull-row">${skullHtml2}</span>` : ''}</span>
           ${badge}${restoreBtn}
         </div>`;
       }).join('');
@@ -1027,7 +1154,9 @@ function render() {
             ? `<span class="badge badge-skipped">Skipped</span>`
             : `<span class="badge badge-done">Done</span>`;
           else badge = `<span class="badge badge-queued">Queued</span>`;
-          return `<div class="list-item"><span class="list-name">${n}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
+          const skullCountM = (state.skulls && state.skulls[n]) || 0;
+          const skullHtmlM = skullCountM ? '<span class="skull-row">' + Array.from({length: skullCountM}, () => `<span class="skull-clickable" onclick="removeSkull('${n.replace(/'/g,"\\'")}')">💀</span>`).join('') + '</span>' : '';
+          return `<div class="list-item"><span class="list-name">${n}${skullHtmlM}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
         }).join('');
   }
 }
