@@ -10,19 +10,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #1a1208;
-  --bg2:       #221a0d;
-  --bg3:       #2e2211;
-  --panel:     #271e0f;
-  --panel2:    #342818;
-  --border:    #6b4e1e;
+  --bg:        #2a2420;
+  --bg2:       #332b25;
+  --bg3:       #3d332b;
+  --panel:     #2e2620;
+  --panel2:    #3a2f27;
+  --border:    #6b4e2e;
   --border-hi: #c8892a;
   --gold:      #f0b429;
   --gold-hi:   #ffd966;
   --gold-dim:  #9a6e14;
-  --amber:     #e07d1a;
   --cream:     #f5e8c8;
-  --muted:     #9a8060;
+  --muted:     #9a8068;
   --danger:    #c0392b;
   --success:   #2e8b57;
   --radius:    14px;
@@ -32,7 +31,6 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
   color: var(--cream);
   font-family: 'Nunito', sans-serif;
   min-height: 100vh;
@@ -40,20 +38,16 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 0 1rem 5rem;
-  background-image:
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(240,180,41,0.07) 0%, transparent 70%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236b4e1e' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background: var(--bg);
+  background-image: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(240,180,41,0.07) 0%, transparent 70%);
 }
 
-/* ═══════════════════════════════════
-   HEADER BANNER
-═══════════════════════════════════ */
+/* ═══ HEADER ═══ */
 .site-header {
   width: 100%;
   max-width: 720px;
   text-align: center;
   padding: 2.5rem 1rem 1rem;
-  position: relative;
 }
 
 .header-deco {
@@ -76,6 +70,7 @@ body {
   background: var(--gold);
   transform: rotate(45deg);
   flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(240,180,41,0.5);
 }
 
 .site-title {
@@ -85,7 +80,7 @@ body {
   color: var(--gold-hi);
   letter-spacing: 0.04em;
   line-height: 1.1;
-  text-shadow: 0 0 40px rgba(240,180,41,0.4), 0 2px 0 rgba(0,0,0,0.8);
+  text-shadow: 0 0 40px rgba(240,180,41,0.45), 0 2px 0 rgba(0,0,0,0.8);
   margin-bottom: 0.3rem;
 }
 
@@ -98,9 +93,7 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* ═══════════════════════════════════
-   LOADING
-═══════════════════════════════════ */
+/* ═══ LOADING ═══ */
 #loadingScreen {
   display: flex;
   flex-direction: column;
@@ -120,12 +113,9 @@ body {
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══════════════════════════════════
-   PASSWORD OVERLAY
-═══════════════════════════════════ */
+/* ═══ PASSWORD OVERLAY ═══ */
 #pwOverlay {
   display: none;
   position: fixed; inset: 0;
@@ -147,53 +137,34 @@ body {
   box-shadow: 0 0 60px rgba(240,180,41,0.12), 0 20px 60px rgba(0,0,0,0.6);
   position: relative;
 }
-
 .pw-box::before {
   content: '';
-  position: absolute;
-  inset: 4px;
+  position: absolute; inset: 4px;
   border: 1px solid rgba(107,78,30,0.4);
   border-radius: 10px;
   pointer-events: none;
 }
-
 .pw-box h2 {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 1.5rem;
-  color: var(--gold-hi);
+  font-size: 1.5rem; color: var(--gold-hi);
   margin-bottom: 0.4rem;
   text-shadow: 0 0 20px rgba(240,180,41,0.3);
 }
-
 .pw-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.6rem; line-height: 1.5; }
 .pw-error { font-size: 0.78rem; color: var(--danger); margin-top: 0.6rem; min-height: 1.1rem; }
 .pw-row { display: flex; gap: 0.5rem; }
 
-/* ═══════════════════════════════════
-   MAIN UI
-═══════════════════════════════════ */
+/* ═══ MAIN UI ═══ */
 #mainUI { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 720px; }
 #mainUI.show { display: flex; }
 
-/* ── admin badge / readonly notice ── */
-.status-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.6rem;
-}
+.status-row { display: flex; justify-content: center; margin-bottom: 1.6rem; }
 
 #adminBadge {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(240,180,41,0.1);
-  border: 1px solid var(--gold-dim);
-  border-radius: 99px;
-  padding: 0.3rem 1rem 0.3rem 0.8rem;
-  font-size: 0.75rem;
-  color: var(--gold);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.06em;
+  display: none; align-items: center; gap: 0.5rem;
+  background: rgba(240,180,41,0.1); border: 1px solid var(--gold-dim);
+  border-radius: 99px; padding: 0.3rem 1rem 0.3rem 0.8rem;
+  font-size: 0.75rem; color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 0.06em;
 }
 #adminBadge.show { display: flex; }
 #adminBadge .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold); }
@@ -201,421 +172,223 @@ body {
 #adminBadge button:hover { color: var(--cream); }
 
 #readonlyNotice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.73rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  font-family: 'Cinzel', serif;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.73rem; color: var(--muted); letter-spacing: 0.06em; font-family: 'Cinzel', serif;
 }
 #readonlyNotice button {
-  background: transparent; border: none;
-  color: var(--gold-dim); font-size: 0.73rem; padding: 0;
-  cursor: pointer; text-decoration: underline;
-  font-family: 'Cinzel', serif;
+  background: transparent; border: none; color: var(--gold-dim); font-size: 0.73rem;
+  padding: 0; cursor: pointer; text-decoration: underline; font-family: 'Cinzel', serif;
 }
 #readonlyNotice button:hover { color: var(--gold); }
 
-/* ── stats bar ── */
-.stats-bar {
-  display: flex;
-  gap: 0.8rem;
-  margin-bottom: 1.8rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  width: 100%;
-}
+/* ═══ STATS ═══ */
+.stats-bar { display: flex; gap: 0.8rem; margin-bottom: 1.8rem; justify-content: center; flex-wrap: wrap; width: 100%; }
 
 .stat {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem 1.4rem;
-  text-align: center;
-  flex: 1;
-  min-width: 90px;
-  max-width: 140px;
-  position: relative;
-  overflow: hidden;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.7rem 1.4rem;
+  text-align: center; flex: 1; min-width: 90px; max-width: 140px;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(4px);
 }
-
 .stat::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(240,180,41,0.04) 0%, transparent 60%);
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(240,180,41,0.05) 0%, transparent 60%);
   pointer-events: none;
 }
+.stat-number { font-family: 'Cinzel Decorative', serif; font-size: 1.7rem; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(240,180,41,0.35); }
+.stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.2rem; font-family: 'Cinzel', serif; }
 
-.stat-number {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 1.7rem;
-  color: var(--gold);
-  line-height: 1;
-  text-shadow: 0 0 15px rgba(240,180,41,0.35);
-}
-
-.stat-label {
-  font-size: 0.65rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-top: 0.2rem;
-  font-family: 'Cinzel', serif;
-}
-
-/* ── cycle banner ── */
+/* ═══ CYCLE BANNER ═══ */
 .cycle-banner {
-  display: none;
-  background: linear-gradient(135deg, #1a4a2e, #2e8b57);
-  border: 1px solid #3aaa6e;
-  border-radius: var(--radius-sm);
-  padding: 1rem 1.5rem;
-  text-align: center;
-  width: 100%;
-  margin-bottom: 1.2rem;
-  font-size: 0.88rem;
-  color: #c8f0dc;
+  display: none; background: linear-gradient(135deg, #1a4a2e, #2e8b57);
+  border: 1px solid #3aaa6e; border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem; text-align: center; width: 100%; margin-bottom: 1.2rem;
+  font-size: 0.88rem; color: #c8f0dc;
 }
 .cycle-banner strong { display: block; font-family: 'Cinzel', serif; font-size: 1rem; margin-bottom: 0.25rem; color: #fff; letter-spacing: 0.06em; }
 
-/* ── captain card ── */
+/* ═══ CAPTAIN CARD ═══ */
 .captain-card {
-  width: 100%;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0;
-  text-align: center;
-  margin-bottom: 1rem;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.4s;
+  width: 100%; background: rgba(46,38,32,0.92);
+  border: 2px solid var(--border); border-radius: var(--radius);
+  text-align: center; margin-bottom: 1rem;
+  position: relative; overflow: hidden; transition: border-color 0.4s;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
-
 .captain-card::before {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border: 1px solid rgba(107,78,30,0.3);
-  border-radius: 11px;
-  pointer-events: none;
-  z-index: 1;
+  content: ''; position: absolute; inset: 3px;
+  border: 1px solid rgba(107,78,30,0.3); border-radius: 11px;
+  pointer-events: none; z-index: 1;
 }
-
-.captain-card-inner {
-  padding: 2rem 2rem 1.6rem;
-  position: relative;
-  z-index: 2;
-}
-
+.captain-card-inner { padding: 2rem 2rem 1.6rem; position: relative; z-index: 2; }
 .captain-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 60%;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 60%;
   background: linear-gradient(180deg, rgba(240,180,41,0.06) 0%, transparent 100%);
   pointer-events: none;
 }
-
-.captain-card.revealed {
-  border-color: var(--gold);
-  animation: card-glow 2s ease-out;
-}
-
+.captain-card.revealed { border-color: var(--gold); animation: card-glow 2s ease-out; }
 @keyframes card-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(240,180,41,0.5); }
-  30%  { box-shadow: 0 0 40px 8px rgba(240,180,41,0.25); }
-  100% { box-shadow: none; }
+  0%   { box-shadow: 0 0 0 0 rgba(240,180,41,0.5), 0 8px 32px rgba(0,0,0,0.4); }
+  30%  { box-shadow: 0 0 50px 10px rgba(240,180,41,0.22), 0 8px 32px rgba(0,0,0,0.4); }
+  100% { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
 }
 
 .captain-ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.6rem; margin-bottom: 0.8rem;
 }
-
-.captain-ornament span {
-  font-size: 0.65rem;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-}
-
+.captain-ornament span { font-size: 0.65rem; font-family: 'Cinzel', serif; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-dim); }
 .captain-crown { font-size: 1.1rem; }
 
 .captain-name {
   font-family: 'Cinzel Decorative', serif;
-  font-size: clamp(1.8rem, 6vw, 3rem);
-  color: var(--gold-hi);
-  letter-spacing: 0.03em;
-  line-height: 1.1;
+  font-size: clamp(1.8rem, 6vw, 3rem); color: var(--gold-hi);
+  letter-spacing: 0.03em; line-height: 1.1;
   text-shadow: 0 0 30px rgba(240,180,41,0.3);
-  min-height: 3.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 3.5rem; display: flex; align-items: center; justify-content: center;
 }
+.captain-name.empty { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--muted); font-weight: 400; letter-spacing: 0.1em; }
 
-.captain-name.empty {
-  font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
-  color: var(--muted);
-  font-weight: 400;
-  letter-spacing: 0.1em;
-}
-
-.action-row {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 1.4rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
+.action-row { display: flex; gap: 0.6rem; margin-top: 1.4rem; justify-content: center; flex-wrap: wrap; }
 .saving-indicator { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 1.1rem; margin-bottom: 0.5rem; font-family: 'Cinzel', serif; letter-spacing: 0.06em; }
 
-/* ═══════════════════════════════════
-   BUTTONS
-═══════════════════════════════════ */
+/* ═══ BUTTONS ═══ */
 button {
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 1.2rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.03em;
+  font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700;
+  border: none; border-radius: var(--radius-sm); padding: 0.6rem 1.2rem;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em;
 }
 button:active { transform: scale(0.96); }
 button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
 .btn-primary {
   background: linear-gradient(135deg, #d4960f 0%, #f0b429 50%, #e8a820 100%);
-  color: #1a1208;
-  border: 1px solid var(--gold-hi);
+  color: #1a1208; border: 1px solid var(--gold-hi);
   box-shadow: 0 2px 12px rgba(240,180,41,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.06em;
-  font-size: 0.82rem;
+  font-family: 'Cinzel', serif; letter-spacing: 0.06em; font-size: 0.82rem;
 }
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #e8a820 0%, #ffd966 50%, #f0b429 100%);
-  box-shadow: 0 4px 20px rgba(240,180,41,0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(240,180,41,0.45); transform: translateY(-1px);
 }
 
 .btn-skip {
-  background: transparent;
-  color: var(--gold);
-  border: 1px solid var(--border);
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  background: transparent; color: var(--gold); border: 1px solid var(--border);
+  font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.04em;
 }
-.btn-skip:hover:not(:disabled) {
-  border-color: var(--gold-dim);
-  background: rgba(240,180,41,0.06);
-}
+.btn-skip:hover:not(:disabled) { border-color: var(--gold-dim); background: rgba(240,180,41,0.06); }
 
 .btn-done {
-  background: linear-gradient(135deg, #1e6b40, #2e8b57);
-  color: #c8f0dc;
-  border: 1px solid #3aaa6e;
-  font-family: 'Cinzel', serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #1e6b40, #2e8b57); color: #c8f0dc;
+  border: 1px solid #3aaa6e; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.05em;
 }
 .btn-done:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
 
+.btn-restore {
+  background: transparent; color: #a0c4ff; border: 1px solid rgba(100,150,220,0.35);
+  font-size: 0.72rem; padding: 0.3rem 0.7rem; font-family: 'Cinzel', serif; letter-spacing: 0.04em;
+}
+.btn-restore:hover:not(:disabled) { border-color: #a0c4ff; background: rgba(100,150,220,0.08); }
+
 .btn-danger {
-  background: transparent;
-  color: #e07070;
-  border: 1px solid rgba(192,57,43,0.35);
-  font-size: 0.75rem;
-  padding: 0.4rem 0.9rem;
+  background: transparent; color: #e07070; border: 1px solid rgba(192,57,43,0.35);
+  font-size: 0.75rem; padding: 0.4rem 0.9rem;
 }
 .btn-danger:hover:not(:disabled) { border-color: var(--danger); background: rgba(192,57,43,0.06); }
 
-/* ═══════════════════════════════════
-   TABS + PANELS
-═══════════════════════════════════ */
+/* ═══ TABS ═══ */
 .tabs-wrapper { width: 100%; margin-top: 0.5rem; }
-
-.tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--border);
-}
-
+.tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
 .tab {
-  padding: 0.6rem 1.2rem;
-  border-radius: 0;
-  font-size: 0.73rem;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-family: 'Cinzel', serif;
-  transition: color 0.15s;
+  padding: 0.6rem 1.2rem; border-radius: 0; font-size: 0.73rem; font-weight: 700;
+  cursor: pointer; border: none; border-bottom: 2px solid transparent;
+  background: transparent; color: var(--muted); letter-spacing: 0.08em;
+  text-transform: uppercase; font-family: 'Cinzel', serif; transition: color 0.15s;
   margin-bottom: -1px;
 }
-
 .tab:hover { color: var(--gold-dim); }
-.tab.active { color: var(--gold); border-bottom-color: var(--gold); background: transparent; }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* ── section title ── */
+/* ═══ SECTION TITLES ═══ */
 .section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--gold-dim);
-  margin: 1.6rem 0 0.7rem;
-  padding: 0 0.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  font-family: 'Cinzel', serif; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.15em; color: var(--gold-dim); margin: 1.6rem 0 0.7rem; padding: 0 0.2rem;
+  display: flex; align-items: center; gap: 0.6rem;
 }
+.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
 
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, var(--border), transparent);
-}
-
-/* ── list box ── */
+/* ═══ LISTS ═══ */
 .list-box {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  background: rgba(46,38,32,0.85); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); overflow: hidden; backdrop-filter: blur(4px);
 }
-
 .list-item {
-  display: flex;
-  align-items: center;
-  padding: 0.6rem 1rem;
-  border-bottom: 1px solid rgba(107,78,30,0.2);
-  font-size: 0.88rem;
-  gap: 0.7rem;
-  transition: background 0.1s;
+  display: flex; align-items: center; padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(107,78,30,0.2); font-size: 0.88rem;
+  gap: 0.7rem; transition: background 0.1s;
 }
-.list-item:hover { background: rgba(240,180,41,0.03); }
+.list-item:hover { background: rgba(240,180,41,0.04); }
 .list-item:last-child { border-bottom: none; }
 .list-num { font-size: 0.65rem; color: var(--muted); min-width: 22px; text-align: right; font-family: 'Cinzel', serif; }
 .list-name { flex: 1; }
 .list-item.done-item .list-name { color: var(--muted); }
 
 .badge {
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.18rem 0.5rem;
-  border-radius: 99px;
-  font-weight: 700;
-  font-family: 'Cinzel', serif;
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.18rem 0.5rem; border-radius: 99px; font-weight: 700; font-family: 'Cinzel', serif;
 }
-.badge-done { background: rgba(46,139,87,0.15); color: #3aaa6e; border: 1px solid rgba(46,139,87,0.25); }
-.badge-queued { background: rgba(240,180,41,0.08); color: var(--gold-dim); border: 1px solid rgba(240,180,41,0.2); }
+.badge-done    { background: rgba(46,139,87,0.15);  color: #3aaa6e;        border: 1px solid rgba(46,139,87,0.3); }
+.badge-skipped { background: rgba(180,100,30,0.15); color: #d4843a;        border: 1px solid rgba(180,100,30,0.3); }
+.badge-queued  { background: rgba(240,180,41,0.08); color: var(--gold-dim); border: 1px solid rgba(240,180,41,0.2); }
 
 .empty-state {
-  padding: 2rem 1rem;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.06em;
+  padding: 2rem 1rem; text-align: center; color: var(--muted);
+  font-size: 0.82rem; font-family: 'Cinzel', serif; letter-spacing: 0.06em;
 }
 
-/* ── add form ── */
+/* ═══ MANAGE PANEL ═══ */
 .add-form { display: flex; gap: 0.6rem; width: 100%; margin-top: 0.5rem; }
 .manage-row { display: flex; gap: 0.6rem; margin-top: 1.2rem; justify-content: flex-end; flex-wrap: wrap; }
 
 input[type="text"], input[type="password"], input[type="url"] {
-  flex: 1;
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--cream);
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.88rem;
-  padding: 0.6rem 0.9rem;
-  outline: none;
-  transition: border-color 0.2s;
+  flex: 1; background: var(--panel2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--cream); font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; padding: 0.6rem 0.9rem; outline: none; transition: border-color 0.2s;
 }
 input:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 2px rgba(240,180,41,0.08); }
 input::placeholder { color: var(--muted); }
 
 .change-pw-box {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 1rem 1.2rem;
-  margin-top: 0.5rem;
+  background: var(--panel2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 1rem 1.2rem; margin-top: 0.5rem;
 }
 
-/* ═══════════════════════════════════
-   LOCK BUTTON
-═══════════════════════════════════ */
-#lockBtn {
-  position: fixed;
-  bottom: 1.4rem; right: 1.4rem;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 99px;
-  color: var(--muted);
-  font-size: 0.7rem;
-  padding: 0.45rem 1rem;
-  cursor: pointer;
-  letter-spacing: 0.08em;
-  z-index: 50;
-  font-family: 'Cinzel', serif;
-  transition: all 0.2s;
-}
-#lockBtn:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--panel2); }
-
-/* ═══════════════════════════════════
-   FOOTER
-═══════════════════════════════════ */
-footer {
-  margin-top: 3rem;
-  font-size: 0.68rem;
-  color: var(--muted);
-  text-align: center;
-  letter-spacing: 0.1em;
-  font-family: 'Cinzel', serif;
-  opacity: 0.6;
-}
-
-/* ═══════════════════════════════════
-   DECORATIVE CORNER ORNAMENTS
-═══════════════════════════════════ */
-.corner-ornament {
-  position: absolute;
-  width: 20px; height: 20px;
-  border-color: var(--border-hi);
-  border-style: solid;
-  opacity: 0.5;
-}
+/* ═══ CORNER ORNAMENTS ═══ */
+.corner-ornament { position: absolute; width: 20px; height: 20px; border-color: var(--border-hi); border-style: solid; opacity: 0.5; }
 .corner-ornament.tl { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
 .corner-ornament.tr { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
 .corner-ornament.bl { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
 .corner-ornament.br { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
+
+/* ═══ LOCK BTN ═══ */
+#lockBtn {
+  position: fixed; bottom: 1.4rem; right: 1.4rem;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 99px; color: var(--muted); font-size: 0.7rem;
+  padding: 0.45rem 1rem; cursor: pointer; letter-spacing: 0.08em;
+  z-index: 50; font-family: 'Cinzel', serif; transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+#lockBtn:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+footer {
+  margin-top: 3rem; font-size: 0.68rem; color: var(--muted);
+  text-align: center; letter-spacing: 0.1em; font-family: 'Cinzel', serif; opacity: 0.6;
+}
 </style>
 </head>
 <body>
@@ -623,10 +396,8 @@ footer {
 <!-- Password overlay -->
 <div id="pwOverlay">
   <div class="pw-box">
-    <div class="corner-ornament tl"></div>
-    <div class="corner-ornament tr"></div>
-    <div class="corner-ornament bl"></div>
-    <div class="corner-ornament br"></div>
+    <div class="corner-ornament tl"></div><div class="corner-ornament tr"></div>
+    <div class="corner-ornament bl"></div><div class="corner-ornament br"></div>
     <h2>⚔ Admin Access</h2>
     <p>Enter the admin password to manage the guild rotation.</p>
     <div class="pw-row">
@@ -638,7 +409,7 @@ footer {
   </div>
 </div>
 
-<!-- Site header (always visible) -->
+<!-- Header -->
 <header class="site-header">
   <div class="header-deco">
     <div class="deco-line"></div>
@@ -646,7 +417,7 @@ footer {
     <div class="deco-line"></div>
   </div>
   <div class="site-title">NullZero Captain Tracker</div>
-  <div class="site-tagline">CapybaraGo Guild Trade Captain Rotations</div>
+  <div class="site-tagline">CapybaraGo Captain Rotationsr</div>
 </header>
 
 <!-- Loading -->
@@ -676,12 +447,9 @@ footer {
     All guild members have led. Starting a new cycle.
   </div>
 
-  <!-- Captain card -->
   <div class="captain-card" id="captainCard">
-    <div class="corner-ornament tl"></div>
-    <div class="corner-ornament tr"></div>
-    <div class="corner-ornament bl"></div>
-    <div class="corner-ornament br"></div>
+    <div class="corner-ornament tl"></div><div class="corner-ornament tr"></div>
+    <div class="corner-ornament bl"></div><div class="corner-ornament br"></div>
     <div class="captain-card-inner">
       <div class="captain-ornament">
         <div class="deco-line" style="max-width:60px;"></div>
@@ -697,7 +465,6 @@ footer {
 
   <div class="saving-indicator" id="savingIndicator"></div>
 
-  <!-- Tabs -->
   <div class="tabs-wrapper">
     <div class="tabs">
       <button class="tab active" onclick="switchTab('remaining',event)">Remaining</button>
@@ -756,6 +523,9 @@ let supabaseClient = null;
 let state = null;
 let isAdmin = false;
 
+// ── state shape:
+// { team: [], remaining: [], done: [{name, status:'done'|'skipped'}], current: null, adminPw: '' }
+
 async function init() {
   await startApp(SUPABASE_URL, SUPABASE_KEY);
 }
@@ -764,10 +534,11 @@ async function startApp(url, key) {
   supabaseClient = supabase.createClient(url, key);
   const { data, error } = await supabaseClient.from('guild_state').select('data').eq('id', 'main').single();
   if (error) {
-    document.getElementById('loadingScreen').innerHTML = `<div style="color:var(--danger);font-family:'Cinzel',serif;font-size:0.85rem;text-align:center;max-width:320px;">Connection failed.<br><span style="color:var(--muted);font-size:0.75rem;">${error.message}</span></div>`;
+    document.getElementById('loadingScreen').innerHTML =
+      `<div style="color:var(--danger);font-family:'Cinzel',serif;font-size:0.85rem;text-align:center;max-width:320px;">Connection failed.<br><span style="color:var(--muted);font-size:0.75rem;">${error.message}</span></div>`;
     return;
   }
-  state = data.data;
+  state = migrateDone(data.data);
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('mainUI').classList.add('show');
   document.getElementById('lockBtn').style.display = 'block';
@@ -775,12 +546,19 @@ async function startApp(url, key) {
   supabaseClient
     .channel('guild_state_changes')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'guild_state' }, payload => {
-      state = payload.new.data;
+      state = migrateDone(payload.new.data);
       render();
     })
     .subscribe();
 
   render();
+}
+
+// migrate old flat-string done array to object form {name, status}
+function migrateDone(s) {
+  if (!s) return s;
+  s.done = (s.done || []).map(d => typeof d === 'string' ? { name: d, status: 'done' } : d);
+  return s;
 }
 
 async function saveState() {
@@ -794,6 +572,7 @@ function setSaving(on) {
   document.getElementById('savingIndicator').textContent = on ? '— Saving… —' : '';
 }
 
+// ── auth ──
 function openOverlay() {
   document.getElementById('pwInput').value = '';
   document.getElementById('pwError').textContent = '';
@@ -805,9 +584,7 @@ function closeOverlay() { document.getElementById('pwOverlay').classList.remove(
 function submitPassword() {
   const val = document.getElementById('pwInput').value;
   if (val === (state.adminPw || 'captain123')) {
-    isAdmin = true;
-    closeOverlay();
-    render();
+    isAdmin = true; closeOverlay(); render();
   } else {
     document.getElementById('pwError').textContent = 'Incorrect password.';
     document.getElementById('pwInput').value = '';
@@ -839,6 +616,7 @@ async function changePassword() {
   setTimeout(() => msg.textContent = '', 3000);
 }
 
+// ── helpers ──
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -848,10 +626,15 @@ function shuffle(arr) {
   return a;
 }
 
+function sortAlpha(arr) {
+  return [...arr].sort((a, b) => a.localeCompare(b));
+}
+
+// ── captain logic ──
 async function pickCaptain() {
   if (!isAdmin) return;
   if (state.remaining.length === 0) {
-    state.remaining = shuffle(state.done);
+    state.remaining = shuffle(state.done.map(d => d.name));
     state.done = [];
     state.current = null;
     document.getElementById('cycleBanner').style.display = 'block';
@@ -876,15 +659,23 @@ async function skipBack() {
 
 async function markDone() {
   if (!isAdmin || !state.current) return;
-  state.done = [...state.done, state.current];
+  state.done = [...state.done, { name: state.current, status: 'done' }];
   state.current = null;
   await saveState(); render();
 }
 
 async function skipToDone() {
   if (!isAdmin || !state.current) return;
-  state.done = [...state.done, state.current];
+  state.done = [...state.done, { name: state.current, status: 'skipped' }];
   state.current = null;
+  await saveState(); render();
+}
+
+// ── send a completed person back to remaining ──
+async function restoreToRemaining(name) {
+  if (!isAdmin) return;
+  state.done = state.done.filter(d => d.name !== name);
+  state.remaining = sortAlpha([...state.remaining, name]);
   await saveState(); render();
 }
 
@@ -893,8 +684,8 @@ async function addPerson() {
   const input = document.getElementById('newNameInput');
   const name = input.value.trim();
   if (!name || state.team.includes(name)) { input.value = ''; return; }
-  state.team = [...state.team, name];
-  state.remaining = [...state.remaining, name];
+  state.team = sortAlpha([...state.team, name]);
+  state.remaining = sortAlpha([...state.remaining, name]);
   input.value = '';
   await saveState(); render();
 }
@@ -904,7 +695,7 @@ async function removePerson(name) {
   if (!confirm('Remove ' + name + ' from the guild?')) return;
   state.team = state.team.filter(n => n !== name);
   state.remaining = state.remaining.filter(n => n !== name);
-  state.done = state.done.filter(n => n !== name);
+  state.done = state.done.filter(d => d.name !== name);
   if (state.current === name) state.current = null;
   await saveState(); render();
 }
@@ -931,6 +722,7 @@ function switchTab(tab, e) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+// ── render ──
 function render() {
   if (!state) return;
 
@@ -971,26 +763,48 @@ function render() {
       : '';
   }
 
+  // Remaining — sorted alphabetically
   const remainingList = document.getElementById('remainingList');
-  remainingList.innerHTML = state.remaining.length === 0
+  const sortedRemaining = sortAlpha(state.remaining);
+  remainingList.innerHTML = sortedRemaining.length === 0
     ? '<div class="empty-state">No members remaining in this cycle.</div>'
-    : state.remaining.map((n, i) => `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span></div>`).join('');
+    : sortedRemaining.map((n, i) =>
+        `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span></div>`
+      ).join('');
 
+  // Done — show status badge + restore button for admins
   const doneList = document.getElementById('doneList');
   doneList.innerHTML = state.done.length === 0
     ? '<div class="empty-state">No one completed yet this cycle.</div>'
-    : state.done.map((n, i) => `<div class="list-item done-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span><span class="badge badge-done">Done</span></div>`).join('');
+    : state.done.map((d, i) => {
+        const badge = d.status === 'skipped'
+          ? `<span class="badge badge-skipped">Skipped</span>`
+          : `<span class="badge badge-done">Done</span>`;
+        const restoreBtn = isAdmin
+          ? `<button class="btn-restore" onclick="restoreToRemaining('${d.name.replace(/'/g,"\\'")}')">↩ Restore</button>`
+          : '';
+        return `<div class="list-item done-item">
+          <span class="list-num">${i+1}</span>
+          <span class="list-name">${d.name}</span>
+          ${badge}
+          ${restoreBtn}
+        </div>`;
+      }).join('');
 
+  // Manage — sorted alphabetically
   if (isAdmin) {
     const manageList = document.getElementById('manageList');
-    manageList.innerHTML = state.team.length === 0
+    const sortedTeam = sortAlpha(state.team);
+    manageList.innerHTML = sortedTeam.length === 0
       ? '<div class="empty-state">No members yet. Add some above.</div>'
-      : state.team.map(n => {
+      : sortedTeam.map(n => {
           const isCurrent = state.current === n;
-          const inDone = state.done.includes(n);
+          const inDone = state.done.find(d => d.name === n);
           let badge = '';
           if (isCurrent) badge = `<span class="badge" style="background:rgba(240,180,41,0.12);color:var(--gold);border:1px solid rgba(240,180,41,0.25);">Today</span>`;
-          else if (inDone) badge = `<span class="badge badge-done">Done</span>`;
+          else if (inDone) badge = inDone.status === 'skipped'
+            ? `<span class="badge badge-skipped">Skipped</span>`
+            : `<span class="badge badge-done">Done</span>`;
           else badge = `<span class="badge badge-queued">Queued</span>`;
           return `<div class="list-item"><span class="list-name">${n}</span>${badge}<button class="btn-danger" onclick="removePerson('${n.replace(/'/g,"\\'")}')">Remove</button></div>`;
         }).join('');
