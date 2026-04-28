@@ -417,7 +417,7 @@ footer {
     <div class="deco-line"></div>
   </div>
   <div class="site-title">NullZero Captain Tracker</div>
-  <div class="site-tagline">CapybaraGo Captain Rotationsr</div>
+  <div class="site-tagline">CapybaraGo Captain Rotations</div>
 </header>
 
 <!-- Loading -->
@@ -643,6 +643,7 @@ async function pickCaptain() {
   if (state.remaining.length === 0) { render(); return; }
   const idx = Math.floor(Math.random() * state.remaining.length);
   state.current = state.remaining.splice(idx, 1)[0];
+  state.lastCaptain = null;
   await saveState(); render();
   const card = document.getElementById('captainCard');
   card.classList.remove('revealed');
@@ -660,6 +661,7 @@ async function skipBack() {
 async function markDone() {
   if (!isAdmin || !state.current) return;
   state.done = [...state.done, { name: state.current, status: 'done' }];
+  state.lastCaptain = state.current;
   state.current = null;
   await saveState(); render();
 }
@@ -755,6 +757,13 @@ function render() {
       <button class="btn-skip" onclick="skipBack()">Skip · Reshuffle Back In</button>
       <button class="btn-skip" onclick="skipToDone()" style="font-size:0.72rem;">Skip · Remove from Cycle</button>
     ` : '';
+  } else if (state.lastCaptain) {
+    nameEl.textContent = state.lastCaptain;
+    nameEl.classList.remove('empty');
+    document.querySelector('.captain-ornament span').textContent = 'Captain of the Day';
+    actionRow.innerHTML = isAdmin
+      ? `<button class="btn-primary" onclick="pickCaptain()" ${state.team.length === 0 ? 'disabled' : ''}>⚔ Pick Next Captain</button>`
+      : '';
   } else {
     nameEl.textContent = state.team.length === 0 ? 'No members added yet' : 'No captain selected yet';
     nameEl.classList.add('empty');
