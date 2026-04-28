@@ -125,7 +125,7 @@ body > * { position: relative; z-index: 1; }
   color: var(--sun);
   letter-spacing: 0.02em;
   line-height: 1.1;
-  text-shadow: 3px 3px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.4);
+  text-shadow: 1px 1px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.4);
   margin-bottom: 0.3rem;
 }
 
@@ -201,7 +201,7 @@ body > * { position: relative; z-index: 1; }
   padding: 2.4rem 2.8rem;
   width: 100%; max-width: 360px;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 8px 8px 0 var(--ocean-deep);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 3px 3px 0 var(--ocean-deep);
   position: relative;
 }
 .pw-box-icon { font-size: 2.4rem; margin-bottom: 0.5rem; }
@@ -255,7 +255,7 @@ body > * { position: relative; z-index: 1; }
   transition: transform 0.2s;
 }
 .stat:hover { transform: translateY(-2px); }
-.stat-number { font-family: 'Pacifico', cursive; font-size: 1.8rem; color: var(--sun); line-height: 1; text-shadow: 2px 2px 0 var(--sun-dark); }
+.stat-number { font-family: 'Pacifico', cursive; font-size: 1.8rem; color: var(--sun); line-height: 1; text-shadow: 1px 1px 0 var(--sun-dark); }
 .stat-label { font-size: 0.65rem; color: var(--foam-mid); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.2rem; font-weight: 700; }
 
 /* ══════════════════════════════════════
@@ -269,7 +269,7 @@ body > * { position: relative; z-index: 1; }
   padding: 1rem 1.5rem;
   text-align: center; width: 100%; margin-bottom: 1.2rem;
   font-size: 0.9rem; color: var(--white); font-weight: 700;
-  box-shadow: 4px 4px 0 var(--mint-dark);
+  box-shadow: 2px 2px 0 var(--mint-dark);
 }
 .cycle-banner strong { display: block; font-family: 'Pacifico', cursive; font-size: 1.1rem; margin-bottom: 0.25rem; }
 
@@ -286,7 +286,7 @@ body > * { position: relative; z-index: 1; }
   position: relative;
   overflow: hidden;
   transition: border-color 0.3s, box-shadow 0.3s;
-  box-shadow: 6px 6px 0 var(--ocean-deep);
+  box-shadow: 2px 2px 0 var(--ocean-deep);
 }
 
 /* Wave decoration at bottom of card */
@@ -301,7 +301,7 @@ body > * { position: relative; z-index: 1; }
 
 .captain-card.revealed {
   border-color: var(--sun);
-  box-shadow: 6px 6px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.3);
+  box-shadow: 3px 3px 0 var(--sun-dark), 0 0 30px rgba(255,217,61,0.3);
   animation: card-bounce 0.5s cubic-bezier(0.36,0.07,0.19,0.97);
 }
 @keyframes card-bounce {
@@ -404,6 +404,20 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   box-shadow: 0 6px 0 var(--mint-dark);
 }
 
+.btn-move-done {
+  background: var(--mint);
+  color: var(--white);
+  border: 2px solid var(--mint-dark);
+  font-size: 0.7rem; padding: 0.28rem 0.65rem;
+  box-shadow: 0 2px 0 var(--mint-dark);
+  flex-shrink: 0;
+}
+.btn-move-done:hover:not(:disabled) {
+  background: #5ee5dc;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--mint-dark);
+}
+
 .btn-restore {
   background: var(--foam);
   color: var(--ocean);
@@ -480,7 +494,7 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   border: 2px solid var(--foam-mid);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
 }
 
 .list-item {
@@ -918,6 +932,13 @@ function switchTab(tab, e) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+async function moveToCompleted(name) {
+  if (!isAdmin) return;
+  state.remaining = state.remaining.filter(n => n !== name);
+  state.done = [...state.done, { name, status: 'done' }];
+  await saveState(); render();
+}
+
 function render() {
   if (!state) return;
 
@@ -968,9 +989,12 @@ function render() {
   const sortedRemaining = sortAlpha(state.remaining);
   remainingList.innerHTML = sortedRemaining.length === 0
     ? '<div class="empty-state">No crew remaining this voyage.</div>'
-    : sortedRemaining.map((n, i) =>
-        `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span></div>`
-      ).join('');
+    : sortedRemaining.map((n, i) => {
+        const moveBtn = isAdmin
+          ? `<button class="btn-move-done" onclick="moveToCompleted('${n.replace(/'/g,"\\'")}')">✓ Done</button>`
+          : '';
+        return `<div class="list-item"><span class="list-num">${i+1}</span><span class="list-name">${n}</span>${moveBtn}</div>`;
+      }).join('');
 
   const doneList = document.getElementById('doneList');
   doneList.innerHTML = state.done.length === 0
