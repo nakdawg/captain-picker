@@ -281,20 +281,15 @@ CREATE POLICY "public write"
 <button id="lockBtn" onclick="openOverlay()" style="display:none;">🔒 Admin</button>
 
 <script>
-const STORAGE_KEY = 'captainSupabaseConfig';
+const SUPABASE_URL = 'https://ypimsubvdyebewxzlorr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwaW1zdWJ2ZHllYmV3eHpsb3JyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjQ0MTcsImV4cCI6MjA5MjkwMDQxN30.g1MnxpzLaiqgOwPT15iqlCVJtNNlzhdDWIaTd097TEs';
 let supabaseClient = null;
 let state = null;
 let isAdmin = false;
 
 // ── init ──
 async function init() {
-  const cfg = loadConfig();
-  if (!cfg) {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('setupScreen').style.display = 'block';
-    return;
-  }
-  await startApp(cfg.url, cfg.key);
+  await startApp(SUPABASE_URL, SUPABASE_KEY);
 }
 
 function loadConfig() {
